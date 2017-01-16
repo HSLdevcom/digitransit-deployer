@@ -1,0 +1,29 @@
+{
+  "name": "deployer",
+  "version": "1.0.0",
+  "description": "Autodeployer for Digitransit services",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "docker build -t hsldevcom/digitransit-deployer ."
+  },
+  "author": "",
+  "license": "(AGPL-3.0 OR EUPL-1.2)",
+  "dependencies": {
+    "dashdash": "^1.14.1",
+    "debug": "^2.6.0",
+    "docker-registry-client": "^3.2.6",
+    "eslint-config-standard": "^6.2.1",
+    "marathon-node-library": "0.0.4",
+    "read": "^1.0.7"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    }
+  },
+  "devDependencies": {
+    "eslint": "^3.13.1"
+  }
+}
