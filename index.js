@@ -1,31 +1,29 @@
-const dockerRepo = require('./dockerRepo');
 const marathon = require('./marathon');
 const debug = require('debug')('digitransit-deployer');
+const imageDeployer = require('./image-deployer');
+const serviceRestarter = require('./service-restarter');
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES||5)*60*1000;
 
-const logError=(e) => {
-  debug("Error occurred %s", JSON.stringify(e));
+const actions = [imageDeployer, serviceRestarter];
+
+const logError=(name, e) => {
+  debug("%s: Error occurred %s", name, e);
 };
 
 const checkServices = () => {
+  debug("Retrieving service configuration from marathon");
   marathon.getServices().then(services => {
-    debug("Retrieving service configuration from marathon");
-    services.apps
-      .filter((service) => service.labels['update'] === 'auto' && service.container.docker.forcePullImage === true)
-      .forEach(service => {
-        dockerRepo.getManifest(service.container.docker.image).then(response => {
-          const imageDate = Date.parse(JSON.parse(response.manifest.history[0].v1Compatibility).created);
-          const serviceDate = Date.parse(service.version);
-          const needsUpdate = imageDate > serviceDate;
-          debug("%s needs update: %s", service.id, needsUpdate);
-          if(needsUpdate) {
-            debug("restarting service %s", service.id);
-            marathon.restartService(service.id).then((e) => debug("restart called %s", e));
-          }
-        }).catch(logError);
+    actions.forEach(
+      (action) => {
+        try{
+          action.command(services.apps);
+        } catch(e) {
+
+          logError(action.name,e);
+        }
       });
-  }).catch(logError);
+  });
 };
 
 checkServices();
