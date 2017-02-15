@@ -1,5 +1,5 @@
 const debug = require('debug')('digitransit-service-restarter');
-const marathon = require('./marathon');
+
 
 
 const serviceIsStable = (service) =>
@@ -24,7 +24,7 @@ const serviceIsStable = (service) =>
  */
 module.exports = {
   name:'service-restarter',
-  command:(services) => {
+  command: (services, context) => {
     const NOW = new Date();
 
     const serviceDependencies = [];
@@ -43,30 +43,33 @@ module.exports = {
       }
     });
 
-    serviceDependencies.forEach((serviceDependency) => {
-      let shouldRestart = 0;
+    serviceDependencies.forEach(serviceDependency => {
+      let okToStartCount = 0;
       serviceDependency.dependencies.forEach((dependencyName) => {
         if(serviceMap[dependencyName]) {
           const dependency = serviceMap[dependencyName];
           const service = serviceMap[serviceDependency.service];
-
           const dependencyDate = Date.parse(dependency.version);
           const serviceDate = Date.parse(service.version);
           const dependencyStable = serviceIsStable(dependency);
           const serviceStable = serviceIsStable(service);
-          const needsRestart = serviceStable && dependencyStable && serviceDate < dependencyDate + serviceDependency.delay && dependencyDate + serviceDependency.delay < NOW;
-          debug("Service %s is stable: %s date is %s, dependency %s date is %s, dependency is stable: %s, should restart: %s", serviceDependency.service, serviceStable, service.version, dependency.id, dependency.version, dependencyStable, needsRestart);
-          if(needsRestart) {
-            shouldRestart += 1;
+          const canStart = serviceStable && dependencyStable;
+          const mustStart = dependencyDate + serviceDependency.delay >= NOW && serviceDate < dependencyDate + serviceDependency.delay;
+
+          debug("Service %s is stable: %s date is %s, dependency %s date is %s, dependency is stable: %s, needs restart: %s, canRestart: %s",
+            serviceDependency.service, serviceStable, service.version, dependency.id, dependency.version, dependencyStable, mustStart, canStart);
+
+          if(canStart && mustStart) {
+            okToStartCount += 1;
           }
+
         } else {
           debug("Ignoring unknown dependency for service %s: %s", serviceDependency.service, dependencyName);
         }
       });
-
-      if(shouldRestart === serviceDependency.dependencies.length) {
-        debug("Restarting service %s, all %s dependencies checked", serviceDependency.service, shouldRestart);
-        marathon.restartService(serviceDependency.service).then((e) => debug("restart called %s", e));
+      if(okToStartCount === serviceDependency.dependencies.length) {
+        debug("Restarting service %s, all %s dependencies checked", serviceDependency.service, okToStartCount);
+        context.marathon.restartService(serviceDependency.service).then((e) => debug("restart called %s", e));
       }
     });
   }

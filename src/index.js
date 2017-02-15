@@ -13,11 +13,17 @@ const logError=(name, e) => {
 
 const checkServices = () => {
   debug("Retrieving service configuration from marathon");
+
+  const context = {
+    marathon: require('./marathon'),
+    dockerRepo: require('./dockerRepo')
+  };
+  
   marathon.getServices().then(services => {
     actions.forEach(
       (action) => {
         try{
-          action.command(services.apps);
+          action.command(services.apps, context);
         } catch(e) {
 
           logError(action.name,e);
