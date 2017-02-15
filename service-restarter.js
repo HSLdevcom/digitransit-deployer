@@ -3,7 +3,7 @@ const marathon = require('./marathon');
 
 
 const serviceIsStable = (service) =>
-  service.instances > 0 && service.tasksHealthy == service.instances && service.tasksUnhealthy==0 && service.tasksStaged==0;
+  service.instances > 0 && service.tasksHealthy === service.instances && service.tasksUnhealthy === 0 && service.tasksStaged === 0;
 /*
  * Automatically restarts dependand services in controlled manner. This is
  * useful because we have data as container and we want to restart containers
@@ -44,7 +44,7 @@ module.exports = {
     });
 
     serviceDependencies.forEach((serviceDependency) => {
-      let shouldRestart = false;
+      let shouldRestart = 0;
       serviceDependency.dependencies.forEach((dependencyName) => {
         if(serviceMap[dependencyName]) {
           const dependency = serviceMap[dependencyName];
@@ -57,15 +57,15 @@ module.exports = {
           const needsRestart = serviceStable && dependencyStable && serviceDate < dependencyDate + serviceDependency.delay && dependencyDate + serviceDependency.delay < NOW;
           debug("Service %s is stable: %s date is %s, dependency %s date is %s, dependency is stable: %s, should restart: %s", serviceDependency.service, serviceStable, service.version, dependency.id, dependency.version, dependencyStable, needsRestart);
           if(needsRestart) {
-            shouldRestart = true;
+            shouldRestart += 1;
           }
         } else {
-          debug("Ignoring unknown dependency for service %s: %s", serviceDependency.service, serviceDependency);
+          debug("Ignoring unknown dependency for service %s: %s", serviceDependency.service, dependencyName);
         }
       });
 
-      if(shouldRestart) {
-        debug("Restarting service %s", serviceDependency.service);
+      if(shouldRestart === serviceDependency.dependencies.length) {
+        debug("Restarting service %s, all %s dependencies checked", serviceDependency.service, shouldRestart);
         marathon.restartService(serviceDependency.service).then((e) => debug("restart called %s", e));
       }
     });
