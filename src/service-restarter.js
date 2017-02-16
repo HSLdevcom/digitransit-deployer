@@ -26,15 +26,14 @@ module.exports = {
   name:'service-restarter',
   command: (services, context) => {
     const NOW = new Date();
-
     const serviceDependencies = [];
     const serviceMap = {};
     services.forEach((service) => {
       serviceMap[service.id] = service;
       if(service.labels['restart-after-services']) {
+        debug('restart dependency discovered for service:%s', service.id);
         let dependencies = service.labels['restart-after-services'].split(',');
         const delay = (service.labels['restart-delay'] || 5) * 60 * 1000;
-
         serviceDependencies.push({
           service: service.id,
           dependencies: dependencies,
@@ -45,6 +44,7 @@ module.exports = {
 
     serviceDependencies.forEach(serviceDependency => {
       let okToStartCount = 0;
+      let needsRestart = false;
       serviceDependency.dependencies.forEach((dependencyName) => {
         if(serviceMap[dependencyName]) {
           const dependency = serviceMap[dependencyName];
@@ -53,23 +53,28 @@ module.exports = {
           const serviceDate = Date.parse(service.version);
           const dependencyStable = serviceIsStable(dependency);
           const serviceStable = serviceIsStable(service);
-          const canStart = serviceStable && dependencyStable;
-          const mustStart = dependencyDate + serviceDependency.delay >= NOW && serviceDate < dependencyDate + serviceDependency.delay;
+          const canStart = serviceStable && dependencyStable && dependencyDate + serviceDependency.delay < NOW;
+          const needsStart = serviceDate < dependencyDate + serviceDependency.delay;
 
-          debug("Service %s is stable: %s date is %s, dependency %s date is %s, dependency is stable: %s, needs restart: %s, canRestart: %s",
-            serviceDependency.service, serviceStable, service.version, dependency.id, dependency.version, dependencyStable, mustStart, canStart);
+          debug("dependency %s date is %s, dependency is stable: %s", dependency.id, dependency.version, dependencyStable);
+          debug("Service %s is stable: %s Date is %s, needsStart: %s, canstart: %s",
+            serviceDependency.service, serviceStable, service.version, needsStart, canStart);
 
-          if(canStart && mustStart) {
+          if(canStart) {
             okToStartCount += 1;
+          }
+
+          if(needsStart) {
+            needsRestart = true;
           }
 
         } else {
           debug("Ignoring unknown dependency for service %s: %s", serviceDependency.service, dependencyName);
         }
       });
-      if(okToStartCount === serviceDependency.dependencies.length) {
+      if(okToStartCount === serviceDependency.dependencies.length && needsRestart) {
         debug("Restarting service %s, all %s dependencies checked", serviceDependency.service, okToStartCount);
-        context.marathon.restartService(serviceDependency.service).then((e) => debug("restart called %s", e));
+        context.marathon.restartService(serviceDependency.service).then((e) => debug("Restarted: %s", JSON.stringify(e)));
       }
     });
   }
