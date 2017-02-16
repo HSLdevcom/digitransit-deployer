@@ -6,5 +6,5 @@ ENV CHECK_INTERVAL_MINUTES 5
 ENV DEBUG ""
 COPY package.json /usr/src/app/
 RUN npm install
-COPY src /usr/src/app/
+COPY src /usr/src/app/src
 CMD [ "npm", "start" ]
