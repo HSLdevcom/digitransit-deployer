@@ -3,16 +3,15 @@ const assert = chai.assert;
 const expect = chai.expect;
 const restarter = require('./../src/service-restarter.js');
 
-const appConfig = (id, version, labels, stable) => (JSON.parse(JSON.stringify(
-  {
-    id: id,
-    version: version.toISOString(),
-    labels: labels?labels:{},
-    tasksHealthy: stable?1:0,
-    instances: 1,
-    tasksStaged: 0,
-    tasksUnhealthy:stable?0:1
-  })));
+const appConfig = (id, version, labels, stable) => ({
+  id: id,
+  version: version.toISOString(),
+  labels: labels?labels:{},
+  tasksHealthy: stable?1:0,
+  instances: 1,
+  tasksStaged: 0,
+  tasksUnhealthy:stable?0:1
+});
 
 const failIfRestart = {
   marathon: {
@@ -34,7 +33,6 @@ const countRestarts = () => {
     get: () => (count)
   };
 };
-
 
 const NOW = new Date().getTime();
 
@@ -62,7 +60,7 @@ describe('service-restarter', function() {
   it('stable app should be restarted when restart-delay has passed for only dependency', () => {
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(5)),{}, true),
-      appConfig('/app2', new Date(NOW - minutes(5)), {"restart-after-services":"/app1", "restart-delay": "5"}, true)
+      appConfig('/app2', new Date(NOW - minutes(5)), {"restart-after-services":"/app1", "restart-delay": "1"}, true)
     ];
     const counter = countRestarts();
     restarter.command(testApps, counter);
@@ -104,7 +102,6 @@ describe('service-restarter', function() {
     ];
     restarter.command(testApps, failIfRestart);
   });
-
 
   it('no apps should restart when service is not stable', () => {
     const testApps = [

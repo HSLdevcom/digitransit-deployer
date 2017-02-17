@@ -13,6 +13,7 @@
     "dashdash": "^1.14.1",
     "debug": "^2.6.0",
     "docker-registry-client": "^3.2.6",
+    "graph.js": "^1.21.1",
     "marathon-node-library": "0.0.4",
     "read": "^1.0.7"
   },
