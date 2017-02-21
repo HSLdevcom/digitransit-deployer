@@ -45,9 +45,9 @@ module.exports = {
         return false;
       }
       return true;
-    }).forEach(name => {
-      debug("Restarting service %s", name);
-      context.marathon.restartService(name).then((e) => debug("Restarted: %s", JSON.stringify(e)));
+    }).forEach(({from}) => {
+      debug("Restarting service %s", from);
+      context.marathon.restartService(from).then((e) => debug("Restarted: %s", JSON.stringify(e)));
     });
   }
 };
