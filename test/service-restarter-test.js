@@ -23,14 +23,17 @@ const failIfRestart = {
 
 const countRestarts = () => {
   let count = 0;
+  let service = null;
   return {
     marathon: {
-      restartService: function() {
-        count +=1;
-        return {then:(p) => {p("restarted!");}};
+      restartService: function(id) {
+        service = id;
+        count += 1;
+        return Promise.resolve("restarted!");
       }
     },
-    get: () => (count)
+    get: () => (count),
+    service: () => (service)
   };
 };
 
@@ -50,21 +53,30 @@ describe('service-restarter', function() {
 
   it('no apps should restart when restart-delay has not passed for some dependency', () => {
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(5)),{}, true),
-      appConfig('/app2', new Date(NOW),{}, true),
-      appConfig('/app3', new Date(NOW-1), {"restart-after-services":"/app1,/app2", "restart-delay": "5"}, true)
+      appConfig('/app1', new Date(NOW - minutes(4)),{}, true),
+      appConfig('/app2', new Date(NOW - minutes(5)),{}, true),
+      appConfig('/app3', new Date(NOW - minutes(5)), {"restart-after-services":"/app1,/app2", "restart-delay": "5"}, true)
     ];
     restarter.command(testApps, failIfRestart);
   });
 
   it('stable app should be restarted when restart-delay has passed for only dependency', () => {
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(5)),{}, true),
-      appConfig('/app2', new Date(NOW - minutes(5)), {"restart-after-services":"/app1", "restart-delay": "1"}, true)
+      appConfig('/app1', new Date(NOW - minutes(1)),{}, true),
+      appConfig('/app2', new Date(NOW - minutes(1)), {"restart-after-services":"/app1", "restart-delay": "1"}, true)
     ];
     const counter = countRestarts();
     restarter.command(testApps, counter);
     expect(counter.get()).to.be.equal(1);
+    expect(counter.service()).to.be.equal("/app2");
+  });
+
+  it('stable app should not be restarted when restart-delay has not passed for only dependency', () => {
+    const testApps = [
+      appConfig('/app1', new Date(NOW - minutes(0)),{}, true),
+      appConfig('/app2', new Date(NOW - minutes(1)), {"restart-after-services":"/app1", "restart-delay": "1"}, true)
+    ];
+    restarter.command(testApps, failIfRestart);
   });
 
   it('stable app should be restarted when restart-delay has passed for every dependency', () => {
@@ -76,6 +88,7 @@ describe('service-restarter', function() {
     const counter = countRestarts();
     restarter.command(testApps, counter);
     expect(counter.get()).to.be.equal(1);
+    expect(counter.service()).to.be.equal("/app3");
   });
 
   it('stable app should not be restarted if it has been restarted already', () => {

@@ -1,4 +1,4 @@
-const debug = require('debug')('digitransit-service-restarter');
+const debug = require('debug')('service-restarter');
 const graph = require('./graph.js');
 
 /*
@@ -36,9 +36,16 @@ module.exports = {
     if (serviceGraph.hasCycle()) {
       debug("Bummer! Graph has cycle, %s", serviceGraph.toJSON());
     }
-    graph.servicesNeedingRestart(serviceGraph).filter(({from,value}) => {
-      //check if enough time has passed after depedency restart
-      return NOW > Date.parse(serviceGraph.vertexValue(from).version) + value.delay;
+    graph.servicesNeedingRestart(serviceGraph).filter(({from, value,}) => {
+      debug("service %s needs restart", from);
+      //check that enough time has passed after all depedency restarts
+      for (let [, vertexValue, ] of serviceGraph.verticesFrom(from)) {
+        debug("checking %s %s", NOW, Date.parse(vertexValue.version));
+        if (NOW <= Date.parse(vertexValue.version) + value.delay) {
+          return false;
+        }
+      }
+      return true;
     }).filter(({from}) => {
       if(!graph.isSubGraphStable(serviceGraph, from)) {
         debug("Sub Graph for %s is not stable, delaying restart", from);
