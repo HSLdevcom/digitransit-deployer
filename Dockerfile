@@ -1,4 +1,5 @@
 FROM node:boron
+MAINTAINER Digitransit version: 0.1
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 ENV MARATHON_URL http://127.0.0.1:8080/service/marathon/
