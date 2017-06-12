@@ -8,11 +8,11 @@ DOCKER_TAG="ci-${TRAVIS_COMMIT}"
 #DOCKER_USER=
 #DOCKER_AUTH=
 
-function tagandpush
+function tagandpush {
   docker tag $ORG/$DOCKER_IMAGE:$DOCKER_TAG $ORG/$DOCKER_IMAGE:$1
   docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_AUTH
   docker push $ORG/$DOCKER_IMAGE:$DOCKER_TAG $ORG/$DOCKER_IMAGE:$1
-fi
+}
 
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
 
