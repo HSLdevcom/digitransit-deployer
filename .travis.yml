@@ -1,0 +1,15 @@
+sudo: required
+
+branches:
+  only:
+    - master
+
+services: docker
+
+language: C
+
+install: true
+
+script:
+  - build-docker-image.sh
+
