@@ -16,7 +16,7 @@ function tagandpush {
 
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
 
-  if [ -n $TRAVIS_TAG ];then
+  if [ "$TRAVIS_TAG" ];then
     echo "processing release $TRAVIS_TAG"
     #release do not rebuild, just tag
     docker pull $ORG/$DOCKER_IMAGE:$DOCKER_TAG
