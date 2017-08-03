@@ -7,9 +7,12 @@ branches:
 
 services: docker
 
-language: C
-
-install: true
-
+language: node_js
+node_js:
+  - "8"
+cache:
+  directories:
+    - node_modules
 script:
+  - npm run test
   - ./build-docker-image.sh
