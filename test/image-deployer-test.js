@@ -22,7 +22,7 @@ const failIfRestart = (repoDate) => ({
   },
   dockerRepo: {
     getImageDate: function() {
-      return Promise.resolve(repoDate.toISOString());
+      return Promise.resolve(repoDate.getTime());
     }
   }
 });
@@ -38,7 +38,7 @@ const countRestarts = (repoDate) => {
     },
     dockerRepo: {
       getImageDate: function() {
-        return Promise.resolve(repoDate.toISOString());
+        return Promise.resolve(repoDate.getTime());
       }
     },
     get: () => (count)
