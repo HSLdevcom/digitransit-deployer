@@ -19,24 +19,21 @@ module.exports = {
 
     services.filter((service) => service.labels['update'] === 'auto' && service.container.docker.forcePullImage === true)
     .forEach(service => {
-      context.dockerRepo.getManifest(service.container.docker.image).then(response => {
-        const repoHash = response.res.headers['docker-content-digest'].split(':')[1];
-        const serviceHash = service.labels.imageHash;
+      context.dockerRepo.getImageDate(service.container.docker.image).then(repoImageDate => {
         const serviceDate = Date.parse(service.version);
-
-        if(repoHash !== serviceHash) {
+        if(repoImageDate > serviceDate) {
           if(NOW > serviceDate + COOL_OFF_PERIOD) {
             if(graph.isSubGraphStable(serviceGraph, service.id)) {
-              debug("restarting service %s", service.id);
-              context.marathon.updateImageHash(service.id, repoHash).then((r) => debug("restart called: %s", JSON.stringify(r)));
+              debug("Restarting service %s", service.id);
+              context.marathon.restartService(service.id).then((r) => debug("Restart called: %s", JSON.stringify(r)));
             } else {
-              debug("delaying restart for %s (subgraph not stable)", service.id);
+              debug("Delaying restart for %s (subgraph not stable)", service.id);
             }
           } else {
-            debug("delaying restart for %s (cool off period)", service.id);
+            debug("Delaying restart for %s (cool off period)", service.id);
           }
         } else {
-          debug("no need to update %s", service.id);
+          debug("No need to update %s", service.id);
         }
       }).catch(logError);
     });

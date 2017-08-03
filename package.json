@@ -16,7 +16,8 @@
     "docker-registry-client": "^3.2.6",
     "graph.js": "^1.21.1",
     "marathon-node-library": "0.0.4",
-    "read": "^1.0.7"
+    "read": "^1.0.7",
+    "request-promise": "^4.2.1"
   },
   "eslintConfig": {
     "env": {
