@@ -21,8 +21,8 @@ const failIfRestart = (repoDate) => ({
     }
   },
   dockerRepo: {
-    getManifest: function() {
-      return Promise.resolve({"manifest":{"history":[{v1Compatibility:{"created":repoDate.toISOString()}}]}});
+    getImageDate: function() {
+      return Promise.resolve(repoDate.getTime());
     }
   }
 });
@@ -37,8 +37,8 @@ const countRestarts = (repoDate) => {
       }
     },
     dockerRepo: {
-      getManifest: function() {
-        return Promise.resolve({"manifest":{"history":[{v1Compatibility:{"created":repoDate.toISOString()}}]}});
+      getImageDate: function() {
+        return Promise.resolve(repoDate.getTime());
       }
     },
     get: () => (count)
