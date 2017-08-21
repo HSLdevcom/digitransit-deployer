@@ -2,6 +2,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const expect = chai.expect;
 const restarter = require('./../src/cron-service-restarter.js');
+const time = require('time')(Date);
 
 const appConfig = (id, version, labels, stable) => ({
   id: id,
@@ -51,6 +52,7 @@ describe('cron-service-restarter', function() {
 
   it('no apps should restart when restart-at is after current time', () => {
     const restartAt = new Date(NOW + minutes(5));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(23 * 60)),{"restart-at": restartAtString}, true)
@@ -60,6 +62,7 @@ describe('cron-service-restarter', function() {
 
   it('no apps should restart when last restart within default limit interval', () => {
     const restartAt = new Date(NOW - minutes(5));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(15 * 60)),{"restart-at": restartAtString}, true)
@@ -69,6 +72,7 @@ describe('cron-service-restarter', function() {
 
   it('no apps should restart when last restart within user set limit interval', () => {
     const restartAt = new Date(NOW - minutes(5));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(110)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true)
@@ -78,6 +82,7 @@ describe('cron-service-restarter', function() {
 
   it('no apps should restart when it has been over hour since when the service was supposed to restart', () => {
     const restartAt = new Date(NOW - minutes(350));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(600)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true)
@@ -87,6 +92,7 @@ describe('cron-service-restarter', function() {
 
   it('no apps should restart when service is not stable', () => {
     const restartAt = new Date(NOW - minutes(42));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, false)
@@ -96,6 +102,7 @@ describe('cron-service-restarter', function() {
 
   it('stable app with last restart outside of the user set limit interval should restart', () => {
     const restartAt = new Date(NOW - minutes(1));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, false),
@@ -110,6 +117,7 @@ describe('cron-service-restarter', function() {
 
   it('stable app with last restart outside of the default limit interval should restart', () => {
     const restartAt = new Date(NOW - minutes(1));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(23 * 60)),{"restart-at": restartAtString}, true)
@@ -122,6 +130,7 @@ describe('cron-service-restarter', function() {
 
   it('stable app with restart-at less than 60 mins before should restart', () => {
     const restartAt = new Date(NOW - minutes(55));
+    restartAt.setTimezone('Europe/Helsinki');
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
       appConfig('/app1', new Date(NOW - minutes(23 * 60)),{"restart-at": restartAtString}, true)
