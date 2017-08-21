@@ -71,7 +71,7 @@ describe('cron-service-restarter', function() {
     const restartAt = new Date(NOW - minutes(5));
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(110)),{"restart-at": restartAtString, "restart-limit-interval": 120}, true)
+      appConfig('/app1', new Date(NOW - minutes(110)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true)
     ];
     restarter.command(testApps, failIfRestart);
   });
@@ -80,7 +80,7 @@ describe('cron-service-restarter', function() {
     const restartAt = new Date(NOW - minutes(350));
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(600)),{"restart-at": restartAtString, "restart-limit-interval": 120}, true)
+      appConfig('/app1', new Date(NOW - minutes(600)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true)
     ];
     restarter.command(testApps, failIfRestart);
   });
@@ -89,7 +89,7 @@ describe('cron-service-restarter', function() {
     const restartAt = new Date(NOW - minutes(42));
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": 120}, false)
+      appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, false)
     ];
     restarter.command(testApps, failIfRestart);
   });
@@ -98,9 +98,9 @@ describe('cron-service-restarter', function() {
     const restartAt = new Date(NOW - minutes(1));
     const restartAtString = restartAt.getHours() + ":" + restartAt.getMinutes();
     const testApps = [
-      appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": 120}, false),
-      appConfig('/app2', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": 120}, true),
-      appConfig('/app3', new Date(NOW - minutes(100)),{"restart-at": restartAtString, "restart-limit-interval": 120}, true)
+      appConfig('/app1', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, false),
+      appConfig('/app2', new Date(NOW - minutes(150)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true),
+      appConfig('/app3', new Date(NOW - minutes(100)),{"restart-at": restartAtString, "restart-limit-interval": "120"}, true)
     ];
     const counter = countRestarts();
     restarter.command(testApps, counter);
