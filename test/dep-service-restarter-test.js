@@ -1,7 +1,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const expect = chai.expect;
-const restarter = require('./../src/service-restarter.js');
+const restarter = require('./../src/dep-service-restarter.js');
 
 const appConfig = (id, version, labels, stable) => ({
   id: id,
@@ -41,7 +41,7 @@ const NOW = new Date().getTime();
 
 const minutes = (m) => (m*60*1000);
 
-describe('service-restarter', function() {
+describe('dep-service-restarter', function() {
 
   it('no apps should restart when restart-delay has not passed for only dependency', () => {
     const testApps = [
