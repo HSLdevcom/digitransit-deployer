@@ -13,8 +13,6 @@ node_js:
 cache:
   directories:
     - node_modules
-before_install:
-  - sudo apt-get -y install python3-pip python-dev
 script:
   - npm run test
   - ./build-docker-image.sh
