@@ -1,4 +1,4 @@
-const debug = require('debug')('service-restarter');
+const debug = require('debug')('dep-service-restarter');
 const graph = require('./graph.js');
 
 /*
@@ -28,7 +28,7 @@ const graph = require('./graph.js');
  *
  */
 module.exports = {
-  name:'service-restarter',
+  name:'dep-service-restarter',
   command: (services, context) => {
     const NOW = new Date().getTime();
 
