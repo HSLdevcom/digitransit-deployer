@@ -8,6 +8,7 @@ ENV DEBUG ""
 RUN apk add --update \
     python \
     build-base \
+    tzdata \
   && rm -rf /var/cache/apk/*
 COPY package.json /usr/src/app/
 COPY package-lock.json /usr/src/app/
