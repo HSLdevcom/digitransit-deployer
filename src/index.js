@@ -1,12 +1,20 @@
 const marathon = require('./marathon');
+const git = require('simple-git/promise');
+const fs = require('fs');
 const debug = require('debug')('digitransit-deployer');
 const imageDeployer = require('./image-deployer');
 const depServiceRestarter = require('./dep-service-restarter');
 const cronServiceRestarter = require('./cron-service-restarter');
+const configurationChecker = require('./configuration-checker');
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES||5)*60*1000;
+const CONF_CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES * 12||60)*60*1000;
 
 const actions = [imageDeployer, depServiceRestarter, cronServiceRestarter];
+
+const remoteRepository = 'https://github.com/HSLdevcom/digitransit-mesos-deploy.git';
+const repository = 'digitransit-mesos-deploy';
+var repositoryCloned = false;
 
 const logError=(name, e) => {
   debug("%s: Error occurred %s", name, e);
@@ -19,7 +27,7 @@ const checkServices = () => {
     marathon: require('./marathon'),
     dockerRepo: require('./dockerRepo')
   };
-  
+
   marathon.getServices().then(services => {
     actions.forEach(
       (action) => {
@@ -30,8 +38,36 @@ const checkServices = () => {
           logError(action.name,e);
         }
       });
+  });  
+};
+
+const checkConfiguration = () => {
+  if (!fs.existsSync("./" + repository)) {
+    git().silent(true)
+      .clone(remoteRepository)
+      .then(() => repositoryCloned = true)
+      .catch((err) => debug("Project was not cloned: " + err));
+  } else {
+    repositoryCloned = true;
+  }
+  if (repositoryCloned) {
+    git('./' + repository).silent(true)
+      .pull()
+      .then(() => debug("Repository was updated"))
+      .catch((err) => debug("Repository was not updated :" + err));
+  }
+
+  marathon.getServices().then(services => {
+    try{
+      configurationChecker.command(services.apps);
+    } catch(e) {
+
+      logError(action.name,e);
+    }
   });
 };
 
 checkServices();
+checkConfiguration();
 setInterval(checkServices, CHECK_INTERVAL);
+setInterval(checkConfiguration, CONF_CHECK_INTERVAL);
