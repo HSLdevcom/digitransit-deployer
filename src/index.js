@@ -8,7 +8,7 @@ const cronServiceRestarter = require('./cron-service-restarter');
 const configurationChecker = require('./configuration-checker');
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES||5)*60*1000;
-const CONF_CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES * 12||60)*60*1000;
+const CONF_CHECK_INTERVAL = (process.env.CONFIGURATION_CHECK_INTERVAL_MINUTES||12*60)*60*1000;
 
 const actions = [imageDeployer, depServiceRestarter, cronServiceRestarter];
 
