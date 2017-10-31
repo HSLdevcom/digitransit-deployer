@@ -1,10 +1,13 @@
 const debug = require('debug')('configuration-checker.js');
-const {postSlackMessage} = require('../util');
-const exec = require('child-process-promimse').exec;
+const {postSlackMessage} = require('./util');
+const exec = require('child-process-promise').exec;
 const jsonReader = require('jsonfile').readFileSync;
 const fs = require('fs');
 const isEqual = require('lodash.isequal');
+const includes = require('lodash.includes');
+
 const environment = process.env.ENVIRONMENT_TYPE;
+const fileRoot = 'digitransit-mesos-deploy/digitransit-azure-deploy/files';
 
 const removeFields=['tasks','lastTaskFailure','versionInfo','version','deployments',
   'uris','fetch','executor','tasksStaged','tasksRunning','tasksHealthy','tasksRunning',
@@ -13,49 +16,52 @@ const removeFields=['tasks','lastTaskFailure','versionInfo','version','deploymen
 
 
 const importConfs = () => {
-  const fileRoot = './digitransit-mesos-deploy/digitransit-azure-deploy/files';
-  const fileNames = [];
   const serviceFileConfs = {};
-  fs.readdirSync(fileRoot).forEach(name => {
-    fileNames.push(name);
-  });
-  const filteredFileNames  = fileNames.filter(names =>
-    name.endsWith("-${environment.toLowerCase()}.json")
-  );
-  filteredFileNames.forEach(fName => {
-    const data = jsonReader("${fileRoot}/${fname}");
-    removeFields.forEach(field => {
-      delete data[field];
+  fs.readdirSync(fileRoot)
+    .filter(name =>
+      name.endsWith("-" + environment.toLowerCase() +".json")
+    ).forEach(fName => {
+      try {
+        const data = jsonReader(fileRoot + "/" + fName);
+        removeFields.forEach(field => {
+          delete data[field];
+        });
+        serviceFileConfs[data["id"]] = data;
+      } catch (err) {
+        debug("Error occurred " + err);
+      }
     });
-    serviceFileConfs[data["id"]] = data;
-  });
   return serviceFileConfs;
 };
 
 module.exports = {
-    name:'configuration-checker',
-    command: (services) => {
-      const fileConfs = importConfs();
-      exec("cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type=${environment}'")
-        .then(() => services.forEach(service => {
-          if (service.id in fileConfs) {
-            if (isEqual(service, fileConfs[service.id])) {
-              postSlackMessage('${service.id}: configuration mismatch.');
+  name:'configuration-checker',
+  command: (services) => {
+    exec("cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type="+ environment +"' -i hosts")
+      .then(() => {
+        const fileConfs = importConfs();
+        services.forEach(service => {
+          if (fileConfs.hasOwnProperty(service.id)) {
+            removeFields.forEach(field => {
+              delete service[field];
+            });
+            if (!isEqual(service, fileConfs[service.id])) {
+              postSlackMessage(service.id + ": configuration mismatch.");
             }
           } else {
-            postSlackMessage('${service.id}: configuration missing from config files.');
+            postSlackMessage(service.id + ": configuration missing from config files.");
           }
-        }))
-        .catch((err) => debug("Decrypting files failed: " + err));
-      const serviceIDs = services.map((x) => x.id);
-      for (var key in fileConfs) {
-        if (!(key in serviceIDs)) {
-          postSlackMessage('${key}: service is not deployed yet.');
+        });
+        const serviceIDs = [];
+        services.forEach(service => {serviceIDs.push(service.id)});
+        for (var key in fileConfs) {
+          if (!includes(serviceIDs,key)) {
+            postSlackMessage(key + ": service is not deployed yet.");
+          }
         }
-      }
+      })
       // Using git checkout to undo changes (files will be changed back to encrypted state)
-      exec("cd digitransit-mesos-deploy && git checkout .")
-      .then(() => {})
-      .catch((err) => debug("Encrypting files failed: " + err));
-    }
+      .then(() => exec("cd digitransit-mesos-deploy && git checkout ."))
+      .catch((err) => debug("Error occurred " + err));
+  }
 }

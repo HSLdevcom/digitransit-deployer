@@ -1,6 +1,6 @@
 const IncomingWebhook = require('@slack/client').IncomingWebhook;
 const url = process.env.SLACK_WEBHOOK_URL || null;
-const webhook;
+var webhook;
 if (process.env.ENVIRONMENT_TYPE === "DEV"){
   webhook = url !==null ? new IncomingWebhook(url, {username:'Configuration checker', channel:'dev-monitoring'}):null;
 } else {

@@ -14,7 +14,6 @@ const actions = [imageDeployer, depServiceRestarter, cronServiceRestarter];
 
 const remoteRepository = 'https://github.com/HSLdevcom/digitransit-mesos-deploy.git';
 const repository = 'digitransit-mesos-deploy';
-var repositoryCloned = false;
 
 const logError=(name, e) => {
   debug("%s: Error occurred %s", name, e);
@@ -42,29 +41,38 @@ const checkServices = () => {
 };
 
 const checkConfiguration = () => {
-  if (!fs.existsSync("./" + repository)) {
+  if (!fs.existsSync(repository)) {
     git().silent(true)
       .clone(remoteRepository)
-      .then(() => repositoryCloned = true)
-      .catch((err) => debug("Project was not cloned: " + err));
+      .then(() => fs.writeFile(repository + "/vault_password", process.env.SECRET, function(err) {
+        if(err) {
+          throw err;
+        }
+      }))
+      .then(() => marathon.getServices())
+      .then(services => {
+        try{
+          configurationChecker.command(services.apps);
+        } catch(e) {
+
+          debug("Checking configuration failed!");
+        }
+      })
+      .catch((err) => debug("Error occurred " + err));
   } else {
-    repositoryCloned = true;
-  }
-  if (repositoryCloned) {
     git('./' + repository).silent(true)
       .pull()
-      .then(() => debug("Repository was updated"))
-      .catch((err) => debug("Repository was not updated :" + err));
+      .then(() => marathon.getServices())
+      .then(services => {
+        try{
+          configurationChecker.command(services.apps);
+        } catch(e) {
+
+          debug("Checking configuration failed!");
+        }
+      })
+      .catch((err) => debug("Error occurred " + err));
   }
-
-  marathon.getServices().then(services => {
-    try{
-      configurationChecker.command(services.apps);
-    } catch(e) {
-
-      logError(action.name,e);
-    }
-  });
 };
 
 checkServices();
