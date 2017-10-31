@@ -9,10 +9,12 @@ const includes = require('lodash.includes');
 const environment = process.env.ENVIRONMENT_TYPE;
 const fileRoot = 'digitransit-mesos-deploy/digitransit-azure-deploy/files';
 
-const removeFields=['tasks','lastTaskFailure','versionInfo','version','deployments',
+const removeFields = ['tasks','lastTaskFailure','versionInfo','version','deployments',
   'uris','fetch','executor','tasksStaged','tasksRunning','tasksHealthy','tasksRunning',
   'tasksUnhealthy','ipAddress','residency','secrets','requirePorts','user','args',
   'storeUrls','constraints'];
+
+const excludedServices = ['/marathon-slack', '/msoms'];
 
 
 const importConfs = () => {
@@ -41,15 +43,17 @@ module.exports = {
       .then(() => {
         const fileConfs = importConfs();
         services.forEach(service => {
-          if (fileConfs.hasOwnProperty(service.id)) {
-            removeFields.forEach(field => {
-              delete service[field];
-            });
-            if (!isEqual(service, fileConfs[service.id])) {
-              postSlackMessage(service.id + ": configuration mismatch.");
+          if (!includes(excludedServices, service.id)) {
+            if (fileConfs.hasOwnProperty(service.id)) {
+              removeFields.forEach(field => {
+                delete service[field];
+              });
+              if (!isEqual(service, fileConfs[service.id])) {
+                postSlackMessage(service.id + ": configuration mismatch.");
+              }
+            } else {
+              postSlackMessage(service.id + ": configuration missing from config files.");
             }
-          } else {
-            postSlackMessage(service.id + ": configuration missing from config files.");
           }
         });
         const serviceIDs = [];
