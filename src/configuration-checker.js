@@ -25,9 +25,6 @@ const importConfs = () => {
     ).forEach(fName => {
       try {
         const data = jsonReader(fileRoot + "/" + fName);
-        removeFields.forEach(field => {
-          delete data[field];
-        });
         serviceFileConfs[data["id"]] = data;
       } catch (err) {
         debug("Error occurred " + err);
