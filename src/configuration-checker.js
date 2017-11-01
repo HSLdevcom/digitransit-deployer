@@ -10,9 +10,8 @@ const environment = process.env.ENVIRONMENT_TYPE;
 const fileRoot = 'digitransit-mesos-deploy/digitransit-azure-deploy/files';
 
 const removeFields = ['tasks','lastTaskFailure','versionInfo','version','deployments',
-  'uris','fetch','executor','tasksStaged','tasksRunning','tasksHealthy','tasksRunning',
-  'tasksUnhealthy','ipAddress','residency','secrets','requirePorts','user','args',
-  'storeUrls','constraints'];
+  'uris','fetch','executor','tasksStaged','tasksRunning','tasksHealthy','tasksUnhealthy',
+  'ipAddress','residency','secrets','requirePorts','user','args','storeUrls','constraints'];
 
 const excludedServices = ['/marathon-slack', '/msoms'];
 
