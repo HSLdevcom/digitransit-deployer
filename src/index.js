@@ -37,7 +37,8 @@ const checkServices = () => {
           logError(action.name,e);
         }
       });
-  });  
+  })
+  .catch((err) => debug("Couldn't get services: " + err));  
 };
 
 const checkConfiguration = () => {
