@@ -6,8 +6,10 @@ const imageDeployer = require('./image-deployer');
 const depServiceRestarter = require('./dep-service-restarter');
 const cronServiceRestarter = require('./cron-service-restarter');
 const configurationChecker = require('./configuration-checker');
+const queueChecker = require('./queue-checker');
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES||5)*60*1000;
+const QUEUE_CHECK_INTERVAL = (process.env.QUEUE_CHECK_INTERVAL_MINUTES||30)*60*1000;
 const CONF_CHECK_INTERVAL = (process.env.CONFIGURATION_CHECK_INTERVAL_MINUTES||12*60)*60*1000;
 
 const actions = [imageDeployer, depServiceRestarter, cronServiceRestarter];
@@ -41,6 +43,20 @@ const checkServices = () => {
   .catch((err) => debug("Couldn't get services: " + err));  
 };
 
+const checkQueue = () => {
+  debug("Retrieving service queue from marathon");
+
+  marathon.getQueue().then(deployments => {
+    try{
+      queueChecker.command(deployments);
+    } catch(e) {
+
+      debug("Checking deployments failed: " + e);
+    }
+  })
+  .catch((err) => debug("Couldn't get queue: " + err));  
+};
+
 const checkConfiguration = () => {
   if (!fs.existsSync(repository)) {
     git().silent(true)
@@ -56,7 +72,7 @@ const checkConfiguration = () => {
           configurationChecker.command(services.apps);
         } catch(e) {
 
-          debug("Checking configuration failed!");
+          debug("Checking configuration failed: " + e);
         }
       })
       .catch((err) => debug("Error occurred " + err));
@@ -77,6 +93,8 @@ const checkConfiguration = () => {
 };
 
 checkServices();
+checkQueue();
 checkConfiguration();
 setInterval(checkServices, CHECK_INTERVAL);
+setInterval(checkQueue, QUEUE_CHECK_INTERVAL);
 setInterval(checkConfiguration, CONF_CHECK_INTERVAL);
