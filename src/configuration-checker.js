@@ -15,7 +15,12 @@ const removeFields = ['tasks','lastTaskFailure','versionInfo','version','deploym
 
 const excludedServices = ['/marathon-slack', '/msoms'];
 
-
+/*
+ * Checks if services that exist in the enviroment also have configurations stored in a repository,
+ * checks if services configured in files exist in the environment, and if the configurations
+ * match between the repository and the enviroment. If they are not in synch, message will be
+ * sent to Slack webhook.
+ */
 const importConfs = () => {
   const serviceFileConfs = {};
   fs.readdirSync(fileRoot)
