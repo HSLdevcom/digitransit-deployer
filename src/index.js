@@ -48,7 +48,7 @@ const checkQueue = () => {
 
   marathon.getQueue().then(deployments => {
     try{
-      queueChecker.command(deployments);
+      queueChecker.command(deployments.queue);
     } catch(e) {
 
       debug("Checking deployments failed: " + e);
