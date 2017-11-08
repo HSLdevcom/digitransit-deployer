@@ -12,5 +12,6 @@ const restartService =(id) =>
 
 module.exports = {
   getServices,
+  getQueue,
   restartService,
 };
