@@ -11,13 +11,20 @@
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
   "dependencies": {
+    "@slack/client": "^3.14.1",
+    "child-process-promise": "^2.2.1",
     "dashdash": "^1.14.1",
     "debug": "^2.6.0",
     "docker-registry-client": "^3.2.6",
     "graph.js": "^1.21.1",
-    "marathon-node-library": "0.0.4",
+    "jsonfile": "^4.0.0",
+    "lodash.includes": "^4.3.0",
+    "lodash.isequal": "^4.5.0",
+    "marathon-node": "^1.1.0",
     "read": "^1.0.7",
+    "request": "^2.83.0",
     "request-promise": "^4.2.1",
+    "simple-git": "^1.80.1",
     "time": "^0.12.0"
   },
   "eslintConfig": {
