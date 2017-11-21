@@ -61,9 +61,9 @@ const checkQueue = () => {
 };
 
 const checkNodes = () => {
-  debug("Retrieving service queue from marathon");
+  debug("Retrieving nodes from dc/os");
 
-  curl.getJSON("http://leader.mesos/system/health/v1/nodes", "",
+  curl.getJSON("http://leader.mesos:1050/system/health/v1/nodes", "",
     function(err, response, body) {
       if (!err && response.statusCode === 200) {
         nodeChecker.command(body.nodes);
