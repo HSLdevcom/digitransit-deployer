@@ -13,11 +13,13 @@
   "dependencies": {
     "@slack/client": "^3.14.1",
     "child-process-promise": "^2.2.1",
+    "curl": "^0.1.4",
     "dashdash": "^1.14.1",
     "debug": "^2.6.0",
     "docker-registry-client": "^3.2.6",
     "graph.js": "^1.21.1",
     "jsonfile": "^4.0.0",
+    "lodash.difference": "^4.5.0",
     "lodash.includes": "^4.3.0",
     "lodash.isequal": "^4.5.0",
     "marathon-node": "^1.1.0",
