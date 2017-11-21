@@ -109,6 +109,7 @@ const checkConfiguration = () => {
 checkServices();
 checkQueue();
 checkConfiguration();
+checkNodes();
 setInterval(checkServices, CHECK_INTERVAL);
 setInterval(checkQueue, QUEUE_CHECK_INTERVAL);
 setInterval(checkConfiguration, CONF_CHECK_INTERVAL);
