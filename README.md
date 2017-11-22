@@ -8,7 +8,7 @@ Autodeployer also takes care of restarting dependant services. For example when 
 
 Additionally, some services are restarted periodically.
 
-This service also monitors configurations and deployments. 
+This service also monitors configurations, deployments, and nodes. 
 
 ## Autodeployer configuration
 
@@ -53,6 +53,8 @@ Optional label that defines in minutes how long time has to be since the last re
 
 ## Monitoring
 
-Monitoring is used for three purposes, to check if configurations match between the environment and a repository where configurations are stored, if services are configured to restart each other in a cycle, and to check if there are service deployments stuck in waiting state.
+Monitoring is used for five purposes, to check if configurations match between the environment and a repository where configurations are stored, if services are configured to restart each other in a cycle, to check if there are service deployments stuck in waiting state, to see if nodes drop out of network and to check the health status of the nodes.
 
 If service is missing from either environment, repository, or they dont match, a message will be sent to given slack webhook. Similarly, if services are configured to start each other in a cycle or a service is stuck in waiting state, message will be sent to given slack webhook.
+
+If a node goes unhealthy or drops out of the network, a message will be sent to slack. If node(s) are added to the network, the number of added nodes will be posted to slack.

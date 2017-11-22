@@ -1,16 +1,19 @@
 const marathon = require('./marathon');
 const git = require('simple-git/promise');
 const fs = require('fs');
+const curl = require('curl');
 const debug = require('debug')('digitransit-deployer');
 const imageDeployer = require('./image-deployer');
 const depServiceRestarter = require('./dep-service-restarter');
 const cronServiceRestarter = require('./cron-service-restarter');
 const configurationChecker = require('./configuration-checker');
 const queueChecker = require('./queue-checker');
+const nodeChecker = require('./node-checker');
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES||5)*60*1000;
 const QUEUE_CHECK_INTERVAL = (process.env.QUEUE_CHECK_INTERVAL_MINUTES||30)*60*1000;
 const CONF_CHECK_INTERVAL = (process.env.CONFIGURATION_CHECK_INTERVAL_MINUTES||12*60)*60*1000;
+const NODE_CHECK_INTERVAL = (process.env.NODE_CHECK_INTERVAL_MINUTES||5)*60*1000;
 
 const actions = [imageDeployer, depServiceRestarter, cronServiceRestarter];
 
@@ -57,6 +60,17 @@ const checkQueue = () => {
   .catch((err) => debug("Couldn't get queue: " + err));  
 };
 
+const checkNodes = () => {
+  debug("Retrieving nodes from dc/os");
+
+  curl.getJSON("http://leader.mesos:1050/system/health/v1/nodes", "",
+    function(err, response, body) {
+      if (!err && response.statusCode === 200) {
+        nodeChecker.command(body.nodes);
+      }
+    });
+};
+
 const checkConfiguration = () => {
   if (!fs.existsSync(repository)) {
     git().silent(true)
@@ -95,6 +109,8 @@ const checkConfiguration = () => {
 checkServices();
 checkQueue();
 checkConfiguration();
+checkNodes();
 setInterval(checkServices, CHECK_INTERVAL);
 setInterval(checkQueue, QUEUE_CHECK_INTERVAL);
 setInterval(checkConfiguration, CONF_CHECK_INTERVAL);
+setInterval(checkNodes, NODE_CHECK_INTERVAL);
