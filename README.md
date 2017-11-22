@@ -57,4 +57,4 @@ Monitoring is used for five purposes, to check if configurations match between t
 
 If service is missing from either environment, repository, or they dont match, a message will be sent to given slack webhook. Similarly, if services are configured to start each other in a cycle or a service is stuck in waiting state, message will be sent to given slack webhook.
 
-If a node goes unhealthy or drops out of the network, a message will be sent to slack.
+If a node goes unhealthy or drops out of the network, a message will be sent to slack. If node(s) are added to the network, the number of added nodes will be posted to slack.
