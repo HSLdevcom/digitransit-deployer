@@ -32,6 +32,8 @@ module.exports = {
                 sendNotification(`${node.host_ip}: ${unit.name} is unhealthy.`);
               }
             })
+          } else {
+            sendNotification(`${node.host_ip} is unhealthy.`);
           }
         });
       }
