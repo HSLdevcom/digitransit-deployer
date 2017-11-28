@@ -1,6 +1,7 @@
 const debug = require('debug')('node-checker');
 const difference = require('lodash.difference');
 const {postSlackMessage} = require('./util');
+const rp = require('request-promise');
 
 var lastResponseNodeIPs;
 
@@ -11,25 +12,59 @@ var lastResponseNodeIPs;
  * for each missing node, a message containing missing nodes IP
  * will be sent to slack. 
  */
+
+const sendNotification = (message) => {
+  debug(message);
+  postSlackMessage(message);
+}
+
 module.exports = {
   name:'node-checker',
   command: (nodes) => {
-    newResponseNodeIPs = nodes.map(x => x.host_ip);
     nodes.forEach((node) => {
       if (node.health !== 0) {
-        debug(node.host_ip + ": node is unhealthy.");
-        postSlackMessage(node.host_ip + ": node is unhealthy.");
+        let url = `http://leader.mesos:1050/system/health/v1/nodes/${node.host_ip}/units`;
+        rp(url).then(res => {
+          const data = JSON.parse(res);
+          if ('units' in data) {
+            data.units.forEach((unit) => {
+              if (unit.health !== 0) {
+                sendNotification(`${node.host_ip}: ${unit.name} is unhealthy.`);
+              }
+            })
+          }
+        });
       }
     });
+
+    const newResponseNodeIPs = nodes.map(x => x.host_ip);
+    const removedIPs = difference(lastResponseNodeIPs, newResponseNodeIPs);
+    const newIPs = difference(newResponseNodeIPs, lastResponseNodeIPs);
+
     if (lastResponseNodeIPs && nodes.length > lastResponseNodeIPs.length) {
-      debug(nodes.length - lastResponseNodeIPs.length + " nodes were added to the network.");
-      postSlackMessage(nodes.length - lastResponseNodeIPs.length + " nodes were added to the network.");
-    } else if (lastResponseNodeIPs && nodes.length < lastResponseNodeIPs.length) {
-      const missingNodes = difference(lastResponseNodeIPs, newResponseNodeIPs);
-      missingNodes.forEach((nodeIP) => {
-        debug(nodeIP + ": node is missing from the network.");
-        postSlackMessage(nodeIP + ": node is missing from the network.");
-      });
+      const addeddNodeCount = nodes.length - lastResponseNodeIPs.length;
+      if (newIPs.length === addeddNodeCount) {
+        newIPs.forEach((nodeIP) => {
+          sendNotification(`${nodeIP}: node was added to the network.`);
+        });
+      } else {
+        sendNotification(`${removedIPs.join(', ')} were replaced by ${newIPs.join(', ')}.`);
+        if (removedNodeCount !== 0) {
+          sendNotification(`${addeddNodeCount} nodes were added to the network.`);
+        }
+      }
+    } else if (lastResponseNodeIPs && removedIPs.length !== 0) {
+      const removedNodeCount = lastResponseNodeIPs.length -  nodes.length;
+      if (removedIPs.length === removedNodeCount) {
+        removedIPs.forEach((nodeIP) => {
+          sendNotification(`${nodeIP}: node is missing from the network.`);
+        });
+      } else {
+        sendNotification(`${removedIPs.join(', ')} were replaced by ${newIPs.join(', ')}.`);
+        if (removedNodeCount !== 0) {
+          sendNotification(`${removedNodeCount} nodes are missing from the network.`);
+        }
+      }
     }
     lastResponseNodeIPs = newResponseNodeIPs;
   }
