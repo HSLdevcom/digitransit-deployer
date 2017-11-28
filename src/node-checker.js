@@ -26,7 +26,7 @@ module.exports = {
         let url = `http://leader.mesos:1050/system/health/v1/nodes/${node.host_ip}/units`;
         rp(url).then(res => {
           const data = JSON.parse(res);
-          if ('units' in data) {
+          if ('units' in data && data.units) {
             data.units.forEach((unit) => {
               if (unit.health !== 0) {
                 sendNotification(`${node.host_ip}: ${unit.name} is unhealthy.`);

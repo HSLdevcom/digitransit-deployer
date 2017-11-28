@@ -66,7 +66,7 @@ const checkNodes = () => {
   rp("http://leader.mesos:1050/system/health/v1/nodes")
     .then(res => {
       const data = JSON.parse(res);
-      if ('nodes' in data) {
+      if ('nodes' in data && data.nodes) {
         nodeChecker.command(data.nodes);
       }
     });
