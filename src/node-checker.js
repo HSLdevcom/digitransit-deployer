@@ -43,16 +43,16 @@ module.exports = {
     const removedIPs = difference(lastResponseNodeIPs, newResponseNodeIPs);
     const newIPs = difference(newResponseNodeIPs, lastResponseNodeIPs);
 
-    if (lastResponseNodeIPs && nodes.length > lastResponseNodeIPs.length) {
-      const addeddNodeCount = nodes.length - lastResponseNodeIPs.length;
-      if (newIPs.length === addeddNodeCount) {
+    if (lastResponseNodeIPs && newIPs.length !== 0) {
+      const addedNodeCount = nodes.length - lastResponseNodeIPs.length;
+      if (newIPs.length === addedNodeCount) {
         newIPs.forEach((nodeIP) => {
           sendNotification(`${nodeIP}: node was added to the network.`);
         });
       } else {
         sendNotification(`${removedIPs.join(', ')} were replaced by ${newIPs.join(', ')}.`);
-        if (removedNodeCount !== 0) {
-          sendNotification(`${addeddNodeCount} nodes were added to the network.`);
+        if (addedNodeCount !== 0) {
+          sendNotification(`${addedNodeCount} nodes were added to the network.`);
         }
       }
     } else if (lastResponseNodeIPs && removedIPs.length !== 0) {
