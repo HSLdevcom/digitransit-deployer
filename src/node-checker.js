@@ -6,11 +6,11 @@ const rp = require('request-promise');
 var lastResponseNodeIPs;
 
 /*
- * Checks if the number of nodes in the network remains the same.
- * If node(s) are added to the network, the number of added nodes
- * will be posted to slack. If node(s) are missing from the network,
- * for each missing node, a message containing missing nodes IP
- * will be sent to slack. 
+ * Checks if the number of nodes in the network change and if
+ * the IP addresses change. Posts to slack webhook when number of
+ * nodes in the network change and/or IP addresses change. Additionally,
+ * reports to slack if a node is unhealthy (connection timeouts or some
+ * component of the node is unhealthy).
  */
 
 const sendNotification = (message) => {
