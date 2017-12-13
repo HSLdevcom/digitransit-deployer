@@ -1,7 +1,7 @@
 const marathon = require('./marathon');
 const git = require('simple-git/promise');
 const fs = require('fs');
-const curl = require('curl');
+const rp = require('request-promise');
 const debug = require('debug')('digitransit-deployer');
 const imageDeployer = require('./image-deployer');
 const depServiceRestarter = require('./dep-service-restarter');
@@ -63,10 +63,11 @@ const checkQueue = () => {
 const checkNodes = () => {
   debug("Retrieving nodes from dc/os");
 
-  curl.getJSON("http://leader.mesos:1050/system/health/v1/nodes", "",
-    function(err, response, body) {
-      if (!err && response.statusCode === 200) {
-        nodeChecker.command(body.nodes);
+  rp("http://leader.mesos:1050/system/health/v1/nodes")
+    .then(res => {
+      const data = JSON.parse(res);
+      if ('nodes' in data && data.nodes) {
+        nodeChecker.command(data.nodes);
       }
     });
 };
