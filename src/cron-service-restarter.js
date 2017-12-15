@@ -33,7 +33,7 @@ module.exports = {
       service.labels['restart-at'].split(',').forEach(restartTime => {
         const trimmedTime = restartTime.replace(/\s/g, '');
         const timeArray = trimmedTime.split(':');
-        const nextHour = parseInt(timeArray[0] + 1);
+        const nextHour = parseInt(timeArray[0]) + 1;
   
         const cronDate = getDateObject(timeArray);
         // One hour later
