@@ -46,7 +46,7 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
 ```
 
 ### "restart-at": "04:30"
-Restarts service at 04:30. Attempts to restart service stop after service has been successfully restarted or an hour has passed.
+Restarts service at 04:30. Attempts to restart service stop after service has been successfully restarted or an hour has passed. It is possible to define multiple restart points by separating them with commas, for example "restart-at": "13:00, 18:50".
 
 ### "restart-limit-interval": "240"
 Optional label that defines in minutes how long time has to be since the last restart for a restart to trigger at the time defined in "restart-at" label. If "restart-limit-interval" is not defined, the default value will be 1080 minutes (18 hours).
