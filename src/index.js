@@ -43,7 +43,7 @@ const checkServices = () => {
         }
       });
   })
-  .catch((err) => debug("Couldn't get services: " + err));  
+    .catch((err) => debug("Couldn't get services: " + err));
 };
 
 const checkQueue = () => {
@@ -57,7 +57,7 @@ const checkQueue = () => {
       debug("Checking deployments failed: " + e);
     }
   })
-  .catch((err) => debug("Couldn't get queue: " + err));  
+    .catch((err) => debug("Couldn't get queue: " + err));
 };
 
 const checkNodes = () => {
