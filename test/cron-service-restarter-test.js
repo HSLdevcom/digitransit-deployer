@@ -140,4 +140,36 @@ describe('cron-service-restarter', function() {
     expect(counter.get()).to.be.equal(1);
     expect(counter.service()).to.be.equal("/app1");
   });
+
+  it('stable app with one restart-at time less than 60 mins before should restart once', () => {
+    const restartAtFirst = new Date(NOW - minutes(55));
+    const restartAtSecond = new Date(NOW - minutes(350));
+    restartAtFirst.setTimezone('Europe/Helsinki');
+    restartAtSecond.setTimezone('Europe/Helsinki');
+    const restartAtString = restartAtFirst.getHours() + ":" + restartAtFirst.getMinutes() + ", "
+      + restartAtSecond.getHours() + ":" + restartAtSecond.getMinutes();
+    const testApps = [
+      appConfig('/app1', new Date(NOW - minutes(23 * 60)),{"restart-at": restartAtString}, true)
+    ];
+    const counter = countRestarts();
+    restarter.command(testApps, counter);
+    expect(counter.get()).to.be.equal(1);
+    expect(counter.service()).to.be.equal("/app1");
+  });
+
+  it('stable app with two restart-at time less than 60 mins before should restart once', () => {
+    const restartAtFirst = new Date(NOW - minutes(25));
+    const restartAtSecond = new Date(NOW - minutes(55));
+    restartAtFirst.setTimezone('Europe/Helsinki');
+    restartAtSecond.setTimezone('Europe/Helsinki');
+    const restartAtString = restartAtFirst.getHours() + ":" + restartAtFirst.getMinutes() + ", "
+      + restartAtSecond.getHours() + ":" + restartAtSecond.getMinutes();
+    const testApps = [
+      appConfig('/app1', new Date(NOW - minutes(23 * 60)),{"restart-at": restartAtString}, true)
+    ];
+    const counter = countRestarts();
+    restarter.command(testApps, counter);
+    expect(counter.get()).to.be.equal(1);
+    expect(counter.service()).to.be.equal("/app1");
+  });
 });

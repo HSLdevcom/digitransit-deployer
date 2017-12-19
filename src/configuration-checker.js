@@ -1,6 +1,6 @@
 const debug = require('debug')('configuration-checker.js');
 const {postSlackMessage} = require('./util');
-const exec = require('child-process-promise').exec;
+const {exec} = require('child-process-promise');
 const jsonReader = require('jsonfile').readFileSync;
 const fs = require('fs');
 const isEqual = require('lodash.isequal');
@@ -58,7 +58,7 @@ module.exports = {
           }
         });
         const serviceIDs = [];
-        services.forEach(service => {serviceIDs.push(service.id)});
+        services.forEach(service => {serviceIDs.push(service.id);});
         for (var key in fileConfs) {
           if (!includes(serviceIDs,key)) {
             postSlackMessage(key + ": service is not deployed yet.");
@@ -69,4 +69,4 @@ module.exports = {
       .then(() => exec("cd digitransit-mesos-deploy && git checkout ."))
       .catch((err) => debug("Error occurred " + err));
   }
-}
+};
