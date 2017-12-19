@@ -58,7 +58,7 @@ module.exports = {
           }
         });
         const serviceIDs = [];
-        services.forEach(service => {serviceIDs.push(service.id)});
+        services.forEach(service => {serviceIDs.push(service.id);});
         for (var key in fileConfs) {
           if (!includes(serviceIDs,key)) {
             postSlackMessage(key + ": service is not deployed yet.");
@@ -69,4 +69,4 @@ module.exports = {
       .then(() => exec("cd digitransit-mesos-deploy && git checkout ."))
       .catch((err) => debug("Error occurred " + err));
   }
-}
+};

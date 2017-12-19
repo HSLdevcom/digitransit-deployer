@@ -1,6 +1,5 @@
 const debug = require('debug')('cron-service-restarter.js');
 const graph = require('./graph.js');
-const time = require('time')(Date);
 
 /*
  * Automatically restarts services if they have a restart-at label defined.
@@ -19,7 +18,7 @@ const getDateObject = (timeArray) => {
   dateObject.setHours(parseInt(timeArray[0]));
   dateObject.setMinutes(parseInt(timeArray[1]));
   return dateObject;
-}
+};
 
 module.exports = {
   name:'cron-service-restarter',

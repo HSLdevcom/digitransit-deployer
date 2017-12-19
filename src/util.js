@@ -24,4 +24,4 @@ const postSlackMessage = (message) => {
 
 module.exports= {
   postSlackMessage
-}
+};
