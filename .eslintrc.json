@@ -13,6 +13,7 @@
   "rules": {
     "semi": "error",
     "indent": ["error", 2],
-    "arrow-spacing": "error"
+    "arrow-spacing": "error",
+    "prefer-destructuring": ["error", {"object": true, "array": true}]
   }
 }
