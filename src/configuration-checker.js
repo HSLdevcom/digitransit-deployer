@@ -1,6 +1,6 @@
 const debug = require('debug')('configuration-checker.js');
 const {postSlackMessage} = require('./util');
-const exec = require('child-process-promise').exec;
+const {exec} = require('child-process-promise');
 const jsonReader = require('jsonfile').readFileSync;
 const fs = require('fs');
 const isEqual = require('lodash.isequal');

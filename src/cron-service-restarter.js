@@ -12,11 +12,11 @@ const graph = require('./graph.js');
  * past the time defined in restart-at label.
  */
 
-const getDateObject = (timeArray) => {
+const getDateObject = ([hour, minute]) => {
   const dateObject = new Date();
   dateObject.setTimezone('Europe/Helsinki');
-  dateObject.setHours(parseInt(timeArray[0]));
-  dateObject.setMinutes(parseInt(timeArray[1]));
+  dateObject.setHours(parseInt(hour));
+  dateObject.setMinutes(parseInt(minute));
   return dateObject;
 };
 

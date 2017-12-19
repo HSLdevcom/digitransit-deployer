@@ -1,4 +1,4 @@
-const IncomingWebhook = require('@slack/client').IncomingWebhook;
+const {IncomingWebhook} = require('@slack/client');
 const url = process.env.SLACK_WEBHOOK_URL || null;
 var webhook;
 if (process.env.ENVIRONMENT_TYPE === "DEV"){
