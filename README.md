@@ -1,8 +1,7 @@
-[![Build Status](https://travis-ci.org/HSLdevcom/digitransit-deployer.svg?branch=master)](https://travis-ci.org/HSLdevcom/digitransit-deployer)
+[![Build Status](https://travis-ci.org/HSLdevcom/digitransit-deployer.svg?branch=master)](https://travis-ci.org/HSLdevcom/digitransit-deployer) [![Greenkeeper badge](https://badges.greenkeeper.io/HSLdevcom/digitransit-deployer.svg)](https://greenkeeper.io/)
+
 
 ## Autodeployer, autorestarter and monitoring for Digitransit services
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/HSLdevcom/digitransit-deployer.svg)](https://greenkeeper.io/)
 
 We deploy digitransit docker images automatically from Docker Hub. When a Docker image of a mesos service that we have deployed in our environment is updated at Docker Hub the new image is deployed automatically.
 
