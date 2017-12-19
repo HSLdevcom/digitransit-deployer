@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "build": "docker build -t hsldevcom/digitransit-deployer .",
-    "test": "./node_modules/.bin/eslint src && node ./node_modules/mocha/bin/mocha"
+    "test": "node_modules/.bin/eslint -v; ./node_modules/.bin/eslint src && node ./node_modules/mocha/bin/mocha"
   },
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
