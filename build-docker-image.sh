@@ -4,7 +4,6 @@ DOCKER_IMAGE=digitransit-deployer
 
 DOCKER_TAG="ci-${TRAVIS_COMMIT}"
 # Set these environment variables
-#DOCKER_EMAIL=
 #DOCKER_USER=
 #DOCKER_AUTH=
 
