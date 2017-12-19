@@ -2,6 +2,8 @@
 
 ## Autodeployer, autorestarter and monitoring for Digitransit services
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/HSLdevcom/digitransit-deployer.svg)](https://greenkeeper.io/)
+
 We deploy digitransit docker images automatically from Docker Hub. When a Docker image of a mesos service that we have deployed in our environment is updated at Docker Hub the new image is deployed automatically.
 
 Autodeployer also takes care of restarting dependant services. For example when otp-data is updated otp is restarted etc.
