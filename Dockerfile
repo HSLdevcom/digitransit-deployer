@@ -8,6 +8,7 @@ ENV QUEUE_CHECK_INTERVAL_MINUTES 30
 ENV CONFIGURATION_CHECK_INTERVAL_MINUTES 720
 ENV NODE_CHECK_INTERVAL_MINUTES 5
 ENV DEBUG ""
+ENV TZ "Europe/Helsinki"
 RUN apk add --update \
     python \
     build-base \
@@ -19,4 +20,4 @@ COPY package.json /usr/src/app/
 COPY package-lock.json /usr/src/app/
 RUN npm install
 COPY src /usr/src/app/src
-CMD [ "npm", "start" ]
+CMD ["npm", "start" ]
