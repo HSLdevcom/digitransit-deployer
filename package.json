@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "build": "docker build -t hsldevcom/digitransit-deployer .",
-    "test": "node_modules/.bin/eslint -v; ./node_modules/.bin/eslint src && node ./node_modules/mocha/bin/mocha"
+    "test": "node_modules/.bin/eslint -v; ./node_modules/.bin/eslint src && TZ=Europe/Helsinki node ./node_modules/mocha/bin/mocha"
   },
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
@@ -26,8 +26,7 @@
     "read": "^1.0.7",
     "request": "^2.83.0",
     "request-promise": "^4.2.1",
-    "simple-git": "^1.80.1",
-    "time": "^0.12.0"
+    "simple-git": "^1.80.1"
   },
   "eslintConfig": {
     "env": {
