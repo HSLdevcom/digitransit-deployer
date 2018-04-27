@@ -21,11 +21,17 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
     docker pull $ORG/$DOCKER_IMAGE:$DOCKER_TAG
     tagandpush "prod"
   else
-    echo "processing master build $TRAVIS_COMMIT"
-    #master branch, build and tag as latest
-    docker build --tag="$ORG/$DOCKER_IMAGE:$DOCKER_TAG" .
-    docker push $ORG/$DOCKER_IMAGE:$DOCKER_TAG
-    tagandpush "latest"
+    if [ "$TRAVIS_BRANCH" = "master" ]; then
+      echo "processing master build $TRAVIS_COMMIT"
+      #master branch, build and tag as latest
+      docker build --tag="$ORG/$DOCKER_IMAGE:$DOCKER_TAG" .
+      docker push $ORG/$DOCKER_IMAGE:$DOCKER_TAG
+      tagandpush "latest"
+    else
+      #check if branch is greenkeeper branch
+      echo Not Pushing greenkeeper to docker hub
+      exit 0
+    fi
   fi
 else
   echo "processing pr $TRAVIS_PULL_REQUEST"
