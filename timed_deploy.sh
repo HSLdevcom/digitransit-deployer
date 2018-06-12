@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # This script is a separate tool for making manual production deployments
 # at a given hour tomorrow. Default time is early tomorrow morning 03:00
