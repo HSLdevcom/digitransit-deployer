@@ -30,9 +30,21 @@ Automatic image updates are enabled for service.
 Restart this service when service /opentripplanner-data-con-hsl is restarted
 
 ### "restart-delay": "1"
-Wait at minimum 1 minute before restarting this service (because of dependant service has restarted=
+Wait at minimum 1 minute before restarting this service (because of dependant service has restarted)
 
-## Autorestarter configuration
+## Restarts based on dependencies to other images
+
+```json
+  "labels": {
+    "update": "auto",
+    "restart-after-image-updates": "digitransit-ui:prod, digitransit-site:prod"
+  },
+```
+
+### "restart-after-image-updates": "digitransit-ui:prod, digitransit-site:prod"
+Restart service if digitransit-ui:prod or digitransit-site:prod images have been updated.
+
+## Cron style autorestarter configuration
 
 Labels are also used for the periodic (cron style) restarts. These labels can coexist with the labels required for the auto deployments. Example label use below:
 
