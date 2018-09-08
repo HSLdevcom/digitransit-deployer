@@ -17,7 +17,7 @@
     "debug": "^3.1.0",
     "docker-registry-client": "^3.2.6",
     "graph.js": "^1.21.1",
-    "jsonfile": "^4.0.0",
+    "jsonfile": "^5.0.0",
     "lodash.difference": "^4.5.0",
     "lodash.includes": "^4.3.0",
     "lodash.isequal": "^4.5.0",
