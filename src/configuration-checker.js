@@ -5,6 +5,8 @@ const jsonReader = require('jsonfile').readFileSync;
 const fs = require('fs');
 const isEqual = require('lodash.isequal');
 const includes = require('lodash.includes');
+const transform = require('lodash.transform');
+const isObject = require('lodash.isobject');
 
 const environment = process.env.ENVIRONMENT_TYPE;
 const fileRoot = 'digitransit-mesos-deploy/digitransit-azure-deploy/files';
@@ -37,10 +39,18 @@ const importConfs = () => {
   return serviceFileConfs;
 };
 
+const difference = (object, base) => {
+  return transform(object, (result, value, key) => {
+    if (!isEqual(value, base[key])) {
+      result[key] = isObject(value) && isObject(base[key]) ? difference(value, base[key]) : value;
+    }
+  });
+}
+
 module.exports = {
   name:'configuration-checker',
   command: (services) => {
-    exec("cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type="+ environment +"' -i hosts")
+    exec("rm -r reports; mkdir reports; cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type="+ environment +"' -i hosts")
       .then(() => {
         const fileConfs = importConfs();
         services.forEach(service => {
@@ -51,9 +61,21 @@ module.exports = {
               });
               if (!isEqual(service, fileConfs[service.id])) {
                 postSlackMessage(service.id + ": configuration mismatch.");
+                const json = JSON.stringify(difference(service, fileConfs[service.id]));
+                fs.writeFile("reports/" + service.id + ".json", json, "utf8", (err) => {
+                  if (err) {
+                    debug("Writing json file failed: " + err);
+                  }
+                });
               }
             } else {
               postSlackMessage(service.id + ": configuration missing from config files.");
+              const json = JSON.stringify(service);
+              fs.writeFile("reports/" + service.id + ".json", json, "utf8", (err) => {
+                if (err) {
+                  debug("Writing json file failed: " + err);
+                }
+              });
             }
           }
         });
