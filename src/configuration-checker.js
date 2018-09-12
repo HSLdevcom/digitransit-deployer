@@ -45,7 +45,7 @@ const difference = (object, base) => {
       result[key] = isObject(value) && isObject(base[key]) ? difference(value, base[key]) : value;
     }
   });
-}
+};
 
 module.exports = {
   name:'configuration-checker',
