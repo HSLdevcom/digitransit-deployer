@@ -61,7 +61,11 @@ module.exports = {
               });
               if (!isEqual(service, fileConfs[service.id])) {
                 postSlackMessage(service.id + ": configuration mismatch.");
-                const json = JSON.stringify(difference(service, fileConfs[service.id]));
+                const data = {
+                  new_and_added: difference(service, fileConfs[service.id]),
+                  old_and_removed: difference(fileConfs[service.id], service),
+                };
+                const json = JSON.stringify(data);
                 fs.writeFile("reports/" + service.id + ".json", json, "utf8", (err) => {
                   if (err) {
                     debug("Writing json file failed: " + err);
