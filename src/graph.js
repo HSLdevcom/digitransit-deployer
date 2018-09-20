@@ -1,12 +1,17 @@
 const Graph = require('graph.js/dist/graph.full.js');
 const debug = require('debug')('graph');
+const {postSlackMessage} = require('./util');
 
-
-const addDepEdges = (graph, service) => {
+const addDepEdges = (graph, service, services) => {
   let dependencies = service.labels['restart-after-services'].split(',');
   const delay = (service.labels['restart-delay'] || 5) * 60 * 1000;
   dependencies.forEach(dependencyId => {
-    graph.addEdge(service.id, dependencyId, {delay});
+    if (services.filter(serviceInstance => (serviceInstance.id === dependencyId)).length > 0) {
+      graph.addEdge(service.id, dependencyId, {delay});
+    } else {
+      debug(`${dependencyId} does not exist but is defined as a dependency for service.id`);
+      postSlackMessage(`${dependencyId} does not exist but is defined as a dependency for service.id`);
+    }
   });
 };
 
@@ -48,7 +53,7 @@ module.exports = {
     debug("adding edges");
     services.forEach(service => {
       if(service.labels['restart-after-services']) {
-        addDepEdges(graph, service);
+        addDepEdges(graph, service, services);
       }
     });
     return graph;

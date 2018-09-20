@@ -124,4 +124,15 @@ describe('dep-service-restarter', function() {
     restarter.command(testApps, failIfRestart);
   });
 
+  it('incorrect dependency should be ignored and restart should be called because of valid dependency', () => {
+    const testApps = [
+      appConfig('/app1', new Date(NOW - minutes(1)),{}, true),
+      appConfig('/app2', new Date(NOW - minutes(1)), {"restart-after-services":"/app3,/app1", "restart-delay": "1"}, true)
+    ];
+    const counter = countRestarts();
+    restarter.command(testApps, counter);
+    expect(counter.get()).to.be.equal(1);
+    expect(counter.service()).to.be.equal("/app2");
+  });
+
 });
