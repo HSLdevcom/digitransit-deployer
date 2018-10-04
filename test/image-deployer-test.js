@@ -1,8 +1,8 @@
 const chai = require('chai')
+const { describe, it } = require('mocha')
 const assert = chai.assert
 const expect = chai.expect
 const deployer = require('./../src/image-deployer.js')
-const debug = require('debug')('image-deployer-test')
 
 const appConfig = (id, version, labels, stable) => ({
   id: id,

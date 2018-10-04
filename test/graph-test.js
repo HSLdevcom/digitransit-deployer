@@ -1,4 +1,5 @@
 const chai = require('chai')
+const { describe, it } = require('mocha')
 const expect = chai.expect
 const graph = require('./../src/graph.js')
 
@@ -21,7 +22,7 @@ describe('graph-builder', function () {
       appConfig('/app2', new Date(NOW), { 'restart-after-services': '/app1', 'restart-delay': '5' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(serviceGraph.hasCycle()).to.be.false
+    expect(serviceGraph.hasCycle()).to.equal(false)
   })
 
   it('the built graph should have cycle if so configured', () => {
@@ -30,7 +31,7 @@ describe('graph-builder', function () {
       appConfig('/app2', new Date(NOW), { 'restart-after-services': '/app1', 'restart-delay': '5' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(serviceGraph.hasCycle()).to.be.true
+    expect(serviceGraph.hasCycle()).to.equal(true)
   })
 
   it('Sub Graph should be reported stable when it is', () => {
@@ -40,9 +41,9 @@ describe('graph-builder', function () {
       appConfig('/app3', new Date(NOW), { 'restart-after-services': '/app2', 'restart-delay': '5' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(graph.isSubGraphStable(serviceGraph, '/app1')).to.be.true
-    expect(graph.isSubGraphStable(serviceGraph, '/app2')).to.be.true
-    expect(graph.isSubGraphStable(serviceGraph, '/app3')).to.be.true
+    expect(graph.isSubGraphStable(serviceGraph, '/app1')).to.equal(true)
+    expect(graph.isSubGraphStable(serviceGraph, '/app2')).to.equal(true)
+    expect(graph.isSubGraphStable(serviceGraph, '/app3')).to.equal(true)
   })
 
   it('Sub Graph should be reported unstable when it is', () => {
@@ -52,9 +53,9 @@ describe('graph-builder', function () {
       appConfig('/app3', new Date(NOW), { 'restart-after-services': '/app2', 'restart-delay': '5' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(graph.isSubGraphStable(serviceGraph, '/app1')).to.be.false
-    expect(graph.isSubGraphStable(serviceGraph, '/app2')).to.be.false
-    expect(graph.isSubGraphStable(serviceGraph, '/app3')).to.be.false
+    expect(graph.isSubGraphStable(serviceGraph, '/app1')).to.equal(false)
+    expect(graph.isSubGraphStable(serviceGraph, '/app2')).to.equal(false)
+    expect(graph.isSubGraphStable(serviceGraph, '/app3')).to.equal(false)
   })
 
   it('Graph should tell us if there are pending dependent restarts upstream', () => {
@@ -64,9 +65,9 @@ describe('graph-builder', function () {
       appConfig('/app3', new Date(NOW + 120000), { 'restart-after-services': '/app2', 'restart-delay': '1' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app1')).to.be.false
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app2')).to.be.true
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app3')).to.be.true
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app1')).to.equal(false)
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app2')).to.equal(true)
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app3')).to.equal(true)
   })
 
   it('Graph should tell us if there are no pending dependent restarts upstream', () => {
@@ -76,9 +77,9 @@ describe('graph-builder', function () {
       appConfig('/app3', new Date(NOW + 120000), { 'restart-after-services': '/app2', 'restart-delay': '1' }, true)
     ]
     let serviceGraph = graph.build(testApps)
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app1')).to.be.false
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app2')).to.be.false
-    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app3')).to.be.false
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app1')).to.equal(false)
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app2')).to.equal(false)
+    expect(graph.hasPendingDependentRestarts(serviceGraph, '/app3')).to.equal(false)
   })
 
   it('Graph should return services needing restart', () => {

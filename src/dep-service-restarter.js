@@ -41,7 +41,7 @@ module.exports = {
       graph.servicesNeedingRestart(serviceGraph).filter(({ from, value }) => {
         debug('service %s needs restart', from)
         // check that enough time has passed after all depedency restarts
-        for (let [, vertexValue ] of serviceGraph.verticesFrom(from)) {
+        for (let [, vertexValue] of serviceGraph.verticesFrom(from)) {
           debug('checking %s %s', NOW, Date.parse(vertexValue.version))
           if (NOW <= Date.parse(vertexValue.version) + value.delay) {
             return false

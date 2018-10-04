@@ -27,7 +27,7 @@ const hasPendingDependentRestarts = (graph, serviceName) => {
   // has pending dependent restart if the serviceName or any vertex that service
   // has Path to has pending restarts
 
-  for (let [dependency, , edge ] of graph.verticesFrom(serviceName)) {
+  for (let [dependency, , edge] of graph.verticesFrom(serviceName)) {
     debug('next checking dependency %s %s %s', serviceName, dependency, edge)
     if (needsRestart(graph, serviceName, dependency, edge)) {
       return true

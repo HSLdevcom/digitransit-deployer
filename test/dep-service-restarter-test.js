@@ -1,4 +1,5 @@
 const chai = require('chai')
+const { describe, it } = require('mocha')
 const assert = chai.assert
 const expect = chai.expect
 const restarter = require('./../src/dep-service-restarter.js')
