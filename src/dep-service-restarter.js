@@ -1,6 +1,6 @@
-const debug = require('debug')('dep-service-restarter');
-const graph = require('./graph.js');
-const {postSlackMessage} = require('./util');
+const debug = require('debug')('dep-service-restarter')
+const graph = require('./graph.js')
+const { postSlackMessage } = require('./util')
 
 /*
  * Automatically restarts dependand services in controlled manner. This is
@@ -29,35 +29,35 @@ const {postSlackMessage} = require('./util');
  *
  */
 module.exports = {
-  name:'dep-service-restarter',
+  name: 'dep-service-restarter',
   command: (services, context) => {
-    const NOW = new Date().getTime();
+    const NOW = new Date().getTime()
 
-    let serviceGraph = graph.build(services);
+    let serviceGraph = graph.build(services)
     if (serviceGraph.hasCycle()) {
-      debug("Bummer! Graph has cycle, %s", serviceGraph.toJSON());
-      postSlackMessage("Services are configured to restart each other in a cycle.");
+      debug('Bummer! Graph has cycle, %s', serviceGraph.toJSON())
+      postSlackMessage('Services are configured to restart each other in a cycle.')
     } else {
-      graph.servicesNeedingRestart(serviceGraph).filter(({from, value,}) => {
-        debug("service %s needs restart", from);
-        //check that enough time has passed after all depedency restarts
-        for (let [, vertexValue, ] of serviceGraph.verticesFrom(from)) {
-          debug("checking %s %s", NOW, Date.parse(vertexValue.version));
+      graph.servicesNeedingRestart(serviceGraph).filter(({ from, value }) => {
+        debug('service %s needs restart', from)
+        // check that enough time has passed after all depedency restarts
+        for (let [, vertexValue ] of serviceGraph.verticesFrom(from)) {
+          debug('checking %s %s', NOW, Date.parse(vertexValue.version))
           if (NOW <= Date.parse(vertexValue.version) + value.delay) {
-            return false;
+            return false
           }
         }
-        return true;
-      }).filter(({from}) => {
-        if(!graph.isSubGraphStable(serviceGraph, from)) {
-          debug("Sub Graph for %s is not stable, delaying restart", from);
-          return false;
+        return true
+      }).filter(({ from }) => {
+        if (!graph.isSubGraphStable(serviceGraph, from)) {
+          debug('Sub Graph for %s is not stable, delaying restart', from)
+          return false
         }
-        return true;
-      }).forEach(({from}) => {
-        debug("Restarting service %s", from);
-        context.marathon.restartService(from).then((e) => debug("Restarted: %s", JSON.stringify(e)));
-      });
+        return true
+      }).forEach(({ from }) => {
+        debug('Restarting service %s', from)
+        context.marathon.restartService(from).then((e) => debug('Restarted: %s', JSON.stringify(e)))
+      })
     }
   }
-};
+}
