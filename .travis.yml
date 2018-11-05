@@ -9,11 +9,15 @@ branches:
 services: docker
 
 language: node_js
-node_js:
-  - "8"
 cache:
   directories:
     - node_modules
-script:
-  - npm run test
-  - ./build-docker-image.sh
+
+jobs:
+  include:
+    - stage: test
+      node_js: "8"
+      script: npm run test
+    - stage: build and deploy container
+      node_js: "8"
+      script: ./build-docker-image.sh
