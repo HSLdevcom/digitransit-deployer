@@ -13,7 +13,7 @@ const fileRoot = 'digitransit-mesos-deploy/digitransit-azure-deploy/files'
 
 const removeFields = ['tasks', 'lastTaskFailure', 'versionInfo', 'version', 'deployments',
   'uris', 'fetch', 'executor', 'tasksStaged', 'tasksRunning', 'tasksHealthy', 'tasksUnhealthy',
-  'ipAddress', 'residency', 'secrets', 'requirePorts', 'user', 'args', 'storeUrls', 'constraints']
+  'ipAddress', 'residency', 'secrets', 'requirePorts', 'user', 'args', 'storeUrls']
 
 const excludedServices = ['/marathon-slack', '/msoms']
 
