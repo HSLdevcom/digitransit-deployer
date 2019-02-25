@@ -50,7 +50,7 @@ const difference = (object, base) => {
 module.exports = {
   name: 'configuration-checker',
   command: (services) => {
-    exec("rm -r reports || true; mkdir reports; cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type=" + environment + "' -i hosts")
+    exec("rm -r reports; mkdir reports; cd digitransit-mesos-deploy && ansible-playbook digitransit-manage-containers.yml --tags decrypt --extra-vars 'environment_type=" + environment + "' -i hosts")
       .then(() => {
         const fileConfs = importConfs()
         services.forEach(service => {
