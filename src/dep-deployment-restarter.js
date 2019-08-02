@@ -1,4 +1,4 @@
-const debug = require('debug')('dep-service-restarter')
+const debug = require('debug')('dep-deployment-restarter')
 const graph = require('./graph.js')
 const { postSlackMessage } = require('./util')
 
@@ -29,7 +29,7 @@ const { postSlackMessage } = require('./util')
  *
  */
 module.exports = {
-  name: 'dep-service-restarter',
+  name: 'dep-deployment-restarter',
   command: (services, context) => {
     const NOW = new Date().getTime()
 

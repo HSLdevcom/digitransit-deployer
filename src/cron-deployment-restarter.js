@@ -1,4 +1,4 @@
-const debug = require('debug')('cron-service-restarter.js')
+const debug = require('debug')('cron-deployment-restarter.js')
 const graph = require('./graph.js')
 
 /*
@@ -20,7 +20,7 @@ const getDateObject = ([hour, minute]) => {
 }
 
 module.exports = {
-  name: 'cron-service-restarter',
+  name: 'cron-deployment-restarter',
   command: (services, context) => {
     let serviceGraph = graph.build(services)
     const NOW = new Date().getTime()
