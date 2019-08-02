@@ -19,7 +19,7 @@ const restartDeployment = (appName) => {
   client.loadSpec()
     .then(() => {
       client.apis.apps.v1.deployments()
-        .patch({ qs: { labelSelector: `app=${appName}` }, body: { spec: { template: { metadata: { labels: { date: Date.now() } } } } } })
+        .patch({ qs: { labelSelector: `app=${appName}` }, body: { spec: { template: { metadata: { labels: { lastRestartDate: Date.now() } } } } } })
         .then((deployments) => {
           deployments.body.items.forEach((item) => {
             console.log(item.metadata)
