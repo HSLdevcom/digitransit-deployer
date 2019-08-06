@@ -2,34 +2,35 @@ const Graph = require('graph.js/dist/graph.full.js')
 const debug = require('debug')('graph')
 const { postSlackMessage } = require('./util')
 
-const addDepEdges = (graph, service, services) => {
-  let dependencies = service.labels['restart-after-services'].split(',')
-  const delay = (service.labels['restart-delay'] || 5) * 60 * 1000
-  dependencies.forEach(dependencyId => {
-    if (services.filter(serviceInstance => (serviceInstance.id === dependencyId)).length > 0) {
-      graph.addEdge(service.id, dependencyId, { delay })
+const addDepEdges = (graph, deployment, deployments) => {
+  let dependencies = deployment.spec.template.metadata.labels['restartAfterDeployments'].split(',')
+  const delay = (deployment.spec.template.metadata.labels['restartDelay'] || 5) * 60 * 1000
+  dependencies.forEach(dependency => {
+    const dependencyName = dependency.metadata.labels.app
+    if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependencyName)).length > 0) {
+      graph.addEdge(deployment, dependency, { delay })
     } else {
-      debug(`${dependencyId} does not exist but is defined as a dependency for service.id`)
-      postSlackMessage(`${dependencyId} does not exist but is defined as a dependency for service.id`)
+      debug(`${dependencyName} does not exist but is defined as a dependency for service.id`)
+      postSlackMessage(`${dependencyName} does not exist but is defined as a dependency for service.id`)
     }
   })
 }
 
 const needsRestart = (graph, from, to, edge) => {
-  // needs restart if service time is smaller than dependency time + delay
-  const serviceTime = Date.parse(graph.vertexValue(from).version)
+  // needs restart if deployment time is smaller than dependency time + delay
+  const deploymentTime = Date.parse(graph.vertexValue(from).version)
   const dependencyTime = Date.parse(graph.vertexValue(to).version)
-  const needsStart = dependencyTime + edge.delay > serviceTime
+  const needsStart = dependencyTime + edge.delay > deploymentTime
   return needsStart
 }
 
-const hasPendingDependentRestarts = (graph, serviceName) => {
-  // has pending dependent restart if the serviceName or any vertex that service
+const hasPendingDependentRestarts = (graph, deploymentId) => {
+  // has pending dependent restart if the deploymentId or any vertex that service
   // has Path to has pending restarts
 
-  for (let [dependency, , edge] of graph.verticesFrom(serviceName)) {
-    debug('next checking dependency %s %s %s', serviceName, dependency, edge)
-    if (needsRestart(graph, serviceName, dependency, edge)) {
+  for (let [dependency, , edge] of graph.verticesFrom(deploymentId)) {
+    debug('next checking dependency %s %s %s', deploymentId, dependency, edge)
+    if (needsRestart(graph, deploymentId, dependency, edge)) {
       return true
     }
 
@@ -40,20 +41,21 @@ const hasPendingDependentRestarts = (graph, serviceName) => {
   return false
 }
 
-const serviceIsStable = (service) =>
-  service.instances > 0 && service.tasksHealthy === service.instances && service.tasksUnhealthy === 0 && service.tasksStaged === 0
+const deploymentIsStable = (deployment) =>
+  deployment.replicas > 0 && deployment.readyReplicas === deployment.replicas &&
+  deployment.updatedReplicas === deployment.replicas && deployment.availableReplicas === deployment.replicas
 
 module.exports = {
-  build: (services) => {
+  build: (deployments) => {
     var graph = new Graph()
     debug('adding vertexes')
-    services.forEach(service => {
-      graph.addVertex(service.id, service)
+    deployments.forEach(deployment => {
+      graph.addVertex(deployment.metadata.labels.app, deployment)
     })
     debug('adding edges')
-    services.forEach(service => {
-      if (service.labels['restart-after-services']) {
-        addDepEdges(graph, service, services)
+    deployments.forEach(deployment => {
+      if (deployment.spec.template.metadata.labels['restartAfterDeployments']) {
+        addDepEdges(graph, deployment, deployments)
       }
     })
     return graph
@@ -62,26 +64,26 @@ module.exports = {
     // sub graph is stable if the vertex and all vertexes accessible from the
     // vertex and all vertexes that have path to vertex are stable
     let vertex = graph.vertexValue(vertexId)
-    if (!serviceIsStable(vertex)) return false
+    if (!deploymentIsStable(vertex)) return false
 
     for (let [, vertexValue] of graph.verticesWithPathFrom(vertexId)) {
-      if (!serviceIsStable(vertexValue)) return false
+      if (!deploymentIsStable(vertexValue)) return false
     }
     for (let [, vertexValue] of graph.verticesWithPathTo(vertexId)) {
-      if (!serviceIsStable(vertexValue)) return false
+      if (!deploymentIsStable(vertexValue)) return false
     }
     return true
   },
 
   hasPendingDependentRestarts,
 
-  servicesNeedingRestart: (graph) => {
-    let services = []
+  deploymentsNeedingRestart: (graph) => {
+    let deployments = []
     for (let [from, to, value] of graph.edges()) {
       if (needsRestart(graph, from, to, value)) {
-        services.push({ from, to, value })
+        deployments.push({ from, to, value })
       }
     }
-    return services
+    return deployments
   }
 }
