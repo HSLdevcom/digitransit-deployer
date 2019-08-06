@@ -1,8 +1,10 @@
-const { Client } = require('kubernetes-client')
+const { Client, KubeConfig } = require('kubernetes-client')
 const Request = require('kubernetes-client/backends/request')
 
-const backend = new Request(Request.config.getInCluster())
-const client = new Client({ backend })
+const kubeconfig = new KubeConfig()
+kubeconfig.loadFromCluster()
+const backend = new Request({ kubeconfig })
+const client = new Client({ backend, version: '1.13' })
 
 const getDeployments = () => {
   return new Promise((resolve, reject) => {
