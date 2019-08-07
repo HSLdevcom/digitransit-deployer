@@ -25,7 +25,7 @@ module.exports = {
   command: (deployments, context) => {
     let deploymentGraph = graph.build(deployments)
     const NOW = new Date().getTime()
-    let hasBeenRestarted = false
+    let attemptedRestart = false
 
     deployments.filter((deployment) => deployment.spec.template.metadata.labels['restartAt'])
       .forEach(deployment => {
@@ -34,7 +34,7 @@ module.exports = {
           parseInt(deployment.spec.template.metadata.labels['restartLimitInterval']) || 60 * 18
 
         deployment.spec.template.metadata.labels['restartAt'].split(',').forEach(restartTime => {
-          if (!hasBeenRestarted) {
+          if (!attemptedRestart) {
             const trimmedTime = restartTime.replace(/\s/g, '')
             const timeArray = trimmedTime.split(':')
             const nextHour = parseInt(timeArray[0]) + 1
@@ -51,9 +51,9 @@ module.exports = {
                 context.kubernetes.restartDeployment(deployment.metadata.labels.app)
                   .then((r) => {
                     debug('Restart called: %s', JSON.stringify(r))
-                    hasBeenRestarted = true
                   })
                   .catch((err) => debug(err))
+                attemptedRestart = true
               } else {
                 debug('Delaying restart for %s (subgraph not stable)', deployment.metadata.labels.app)
               }
