@@ -67,7 +67,7 @@ describe('dep-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', new Date(NOW - minutes(4)), {}, true),
       appConfig('app2', new Date(NOW - minutes(5)), {}, true),
-      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1,app2', 'restartDelay': '5' }, true)
+      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1 app2', 'restartDelay': '5' }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -95,7 +95,7 @@ describe('dep-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', new Date(NOW - minutes(10)), {}, true),
       appConfig('app2', new Date(NOW - minutes(5)), {}, true),
-      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1,app2', 'restartDelay': '5' }, true)
+      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1 app2', 'restartDelay': '5' }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -123,7 +123,7 @@ describe('dep-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', new Date(NOW - minutes(5)), {}, true),
       appConfig('app2', new Date(NOW - minutes(5)), {}, false),
-      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1,app2', 'restartDelay': '5' }, true)
+      appConfig('app3', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1 app2', 'restartDelay': '5' }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -139,7 +139,7 @@ describe('dep-deployment-restarter', function () {
   it('incorrect dependency should be ignored and restart should be called because of valid dependency', () => {
     const testApps = [
       appConfig('app1', new Date(NOW - minutes(1)), {}, true),
-      appConfig('app2', new Date(NOW - minutes(1)), { 'restartAfterDeployments': 'app3,app1', 'restartDelay': '1' }, true)
+      appConfig('app2', new Date(NOW - minutes(1)), { 'restartAfterDeployments': 'app3 app1', 'restartDelay': '1' }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)

@@ -3,8 +3,11 @@ const debug = require('debug')('graph')
 const { postSlackMessage } = require('./util')
 
 const addDepEdges = (graph, deployment, deployments) => {
-  const dependencies = deployment.spec.template.metadata.labels['restartAfterDeployments'].split(',')
-  const delay = (deployment.spec.template.metadata.labels['restartDelay'] || 5) * 60 * 1000
+  const deploymentLabels = deployment.spec.template.metadata.labels
+  const dependencies = deploymentLabels['restartAfterDeployments']
+    .split(' ')
+    .filter((unfilteredDeployment) => /\S/.test(unfilteredDeployment)) // remove elements that consists of just whitespace
+  const delay = (deploymentLabels['restartDelay'] || 5) * 60 * 1000
   const deploymentName = deployment.metadata.labels.app
   dependencies.forEach(dependency => {
     if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependency)).length > 0) {

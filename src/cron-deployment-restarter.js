@@ -3,9 +3,9 @@ const graph = require('./graph.js')
 
 /*
  * Automatically restarts deployments if they have a restartAt label defined.
- * Restart time is defined in the restartAt label with "hh:mm" format.
+ * Restart time is defined in the restartAt label with "hh.mm" format.
  * It is possible to define multiple restart points by separating them with commas,
- * for example "13:00, 18:50".
+ * for example "13.00, 18.50".
  * Deployment will not be restarted if it has not been at least 18 hours (by default)
  * since the last restart of the deployment. Alternatively, you can define in
  * restartLimitInterval label how many minutes should be passed since the last restart before
@@ -35,35 +35,38 @@ module.exports = {
         const restartIntervalMins =
           parseInt(deploymentLabels['restartLimitInterval']) || 60 * 18
 
-        deploymentLabels['restartAt'].split(',').forEach(restartTime => {
-          if (!attemptedRestart) {
-            const trimmedTime = restartTime.replace(/\s/g, '')
-            const timeArray = trimmedTime.split(':')
-            const nextHour = parseInt(timeArray[0]) + 1
+        deploymentLabels['restartAt']
+          .split(' ')
+          .filter((time) => /\S/.test(time)) // remove elements that consists of just whitespace
+          .forEach(restartTime => {
+            if (!attemptedRestart) {
+              const trimmedTime = restartTime.replace(/\s/g, '')
+              const timeArray = trimmedTime.split('.')
+              const nextHour = parseInt(timeArray[0]) + 1
 
-            const cronDate = getDateObject(timeArray)
-            // One hour later
-            const cronDateUpperLimit = getDateObject([nextHour, timeArray[1]])
+              const cronDate = getDateObject(timeArray)
+              // One hour later
+              const cronDateUpperLimit = getDateObject([nextHour, timeArray[1]])
 
-            if (NOW - deploymentDate >= restartIntervalMins * 60 * 1000 &&
-            NOW >= cronDate.getTime() &&
-            NOW <= cronDateUpperLimit.getTime()) {
-              if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
-                debug('Restarting deployment %s', deploymentId)
-                context.kubernetes.restartDeployment(deploymentId)
-                  .then((r) => {
-                    debug('Restart called: %s', JSON.stringify(r))
-                  })
-                  .catch((err) => debug(err))
-                attemptedRestart = true
+              if (NOW - deploymentDate >= restartIntervalMins * 60 * 1000 &&
+              NOW >= cronDate.getTime() &&
+              NOW <= cronDateUpperLimit.getTime()) {
+                if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
+                  debug('Restarting deployment %s', deploymentId)
+                  context.kubernetes.restartDeployment(deploymentId)
+                    .then((r) => {
+                      debug('Restart called: %s', JSON.stringify(r))
+                    })
+                    .catch((err) => debug(err))
+                  attemptedRestart = true
+                } else {
+                  debug('Delaying restart for %s (subgraph not stable)', deploymentId)
+                }
               } else {
-                debug('Delaying restart for %s (subgraph not stable)', deploymentId)
+                debug('No need to update %s', deploymentId)
               }
-            } else {
-              debug('No need to update %s', deploymentId)
             }
-          }
-        })
+          })
       })
   }
 }

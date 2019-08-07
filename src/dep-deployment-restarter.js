@@ -7,15 +7,14 @@ const { postSlackMessage } = require('./util')
  * useful because we have data as container and we want to restart containers
  * that depend on that data.
  * Configured with labels as follows:
- *  restartAfterDeployments=/deployment-name
+ *  restartAfterDeployments=deployment-name
  *  restartDelay=5
  *
  *  or multiple:
- *  restartAfterDeployments=/deployment-name,/another-deployment
+ *  restartAfterDeployments=deployment-name another-deployment
  *  restartDelay=5
  *
- * /deployment-name is the dependent mesos deployment name (including the
- * leading '/').
+ * deployment-name is the dependent kubernetes deployment name.
  * restartDelay is in minutes, specifying this to 1 means that restart is not
  * triggered before 1 minutes have elapsed from restarting of the dependent
  * deployment. This also means that if deployment has restarted during delay period
@@ -24,7 +23,7 @@ const { postSlackMessage } = require('./util')
  * Additionally the subgraph of dependencies including the deployment at hand must
  * all be in stable condition before restart is attempted.
  *
- * Additionally the dependent mesos deployment (or any of it's parents) must not
+ * Additionally the dependent kubernetes deployment (or any of it's parents) must not
  * have any pending restarts waiting.
  *
  */

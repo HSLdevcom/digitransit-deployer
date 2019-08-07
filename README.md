@@ -3,7 +3,7 @@
 
 ## Autodeployer, autorestarter and monitoring for Digitransit deployments
 
-We deploy digitransit docker images automatically from Docker Hub. When a Docker image of a mesos deployment that we have deployed in our environment is updated at Docker Hub the new image is deployed automatically.
+We deploy digitransit docker images automatically from Docker Hub. When a Docker image of a kubernetes deployment that we have deployed in our environment is updated at Docker Hub the new image is deployed automatically.
 
 Autodeployer also takes care of restarting dependant deployments. For example when otp-data is updated otp is restarted etc.
 
@@ -13,12 +13,12 @@ This deployment also monitors configurations, deployments, and nodes.
 
 ## Autodeployer configuration
 
-Deployer configuration is stored in labels. For example take a look at https://github.com/HSLdevcom/digitransit-mesos-deploy/blob/master/digitransit-azure-deploy/files/opentripplanner-hsl-prod.json where we have labels set as follows:
+Deployer configuration is stored in labels. For example take a look at TODO CHANGE THIS https://github.com/HSLdevcom/digitransit-mesos-deploy/blob/master/digitransit-azure-deploy/files/opentripplanner-hsl-prod.json where we have labels set as follows:
 
 ```json
   "labels": {
     "update": "auto",
-    "restartAfterDeployments": "/opentripplanner-data-con-hsl",
+    "restartAfterDeployments": "opentripplanner-data-con-hsl",
     "restartDelay": "1"
   },
 ```
@@ -26,8 +26,9 @@ Deployer configuration is stored in labels. For example take a look at https://g
 ### "update": "auto
 Automatic image updates are enabled for deployment.
 
-### "restartAfterDeployments": "/opentripplanner-data-con-hsl"
-Restart this deployment when deployment /opentripplanner-data-con-hsl is restarted
+### "restartAfterDeployments": "opentripplanner-data-con-hsl"
+Restart this deployment when deployment /opentripplanner-data-con-hsl is restarted.
+It is possible to add multiple dependencies by separating them with whitespace
 
 ### "restartDelay": "1"
 Wait at minimum 1 minute before restarting this deployment (because of dependant deployment has restarted)
@@ -51,15 +52,15 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
 ```json
   "labels": {
     "update": "auto",
-    "restartAfterDeployments": "/opentripplanner-data-con-hsl",
+    "restartAfterDeployments": "opentripplanner-data-con-hsl",
     "restartDelay": "1",
-    "restartAt": "04:30",
+    "restartAt": "04.30",
     "restartLimitInterval": "240"
   },
 ```
 
-### "restartAt": "04:30"
-Restarts deployment at 04:30. Attempts to restart deployment stop after deployment has been successfully restarted or an hour has passed. It is possible to define multiple restart points by separating them with commas, for example "restartAt": "13:00, 18:50".
+### "restartAt": "04.30"
+Restarts deployment at 04:30. Attempts to restart deployment stop after deployment has been successfully restarted or an hour has passed. It is possible to define multiple restart points by separating them with whitespace, for example "restartAt": "13.00 18.50".
 
 ### "restartLimitInterval": "240"
 Optional label that defines in minutes how long time has to be since the last restart for a restart to trigger at the time defined in "restartAt" label. If "restartLimitInterval" is not defined, the default value will be 1080 minutes (18 hours).
