@@ -30,10 +30,12 @@ module.exports = {
     deployments.filter((deployment) => deployment.spec.template.metadata.labels['restartAt'])
       .forEach(deployment => {
         const deploymentDate = Date.parse(deployment.version)
+        const deploymentId = deployment.metadata.labels.app
+        const deploymentLabels = deployment.spec.template.metadata.labels
         const restartIntervalMins =
-          parseInt(deployment.spec.template.metadata.labels['restartLimitInterval']) || 60 * 18
+          parseInt(deploymentLabels['restartLimitInterval']) || 60 * 18
 
-        deployment.spec.template.metadata.labels['restartAt'].split(',').forEach(restartTime => {
+        deploymentLabels['restartAt'].split(',').forEach(restartTime => {
           if (!attemptedRestart) {
             const trimmedTime = restartTime.replace(/\s/g, '')
             const timeArray = trimmedTime.split(':')
@@ -46,19 +48,19 @@ module.exports = {
             if (NOW - deploymentDate >= restartIntervalMins * 60 * 1000 &&
             NOW >= cronDate.getTime() &&
             NOW <= cronDateUpperLimit.getTime()) {
-              if (graph.isSubGraphStable(deploymentGraph, deployment.metadata.labels.app)) {
-                debug('Restarting deployment %s', deployment.metadata.labels.app)
-                context.kubernetes.restartDeployment(deployment.metadata.labels.app)
+              if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
+                debug('Restarting deployment %s', deploymentId)
+                context.kubernetes.restartDeployment(deploymentId)
                   .then((r) => {
                     debug('Restart called: %s', JSON.stringify(r))
                   })
                   .catch((err) => debug(err))
                 attemptedRestart = true
               } else {
-                debug('Delaying restart for %s (subgraph not stable)', deployment.metadata.labels.app)
+                debug('Delaying restart for %s (subgraph not stable)', deploymentId)
               }
             } else {
-              debug('No need to update %s', deployment.metadata.labels.app)
+              debug('No need to update %s', deploymentId)
             }
           }
         })

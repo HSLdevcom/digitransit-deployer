@@ -22,13 +22,15 @@ module.exports = {
       (deployment.spec.template.metadata.labels['update'] === 'auto' &&
       deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always'))
       .forEach(deployment => {
+        const deploymentId = deployment.metadata.labels.app
+        const deploymentLabels = deployment.spec.template.metadata.labels
         let dependencies = []
-        if (deployment.spec.template.metadata.labels['restartAfterImageUpdates']) {
+        if (deploymentLabels['restartAfterImageUpdates']) {
           dependencies =
             dependencies.concat(
-              deployment.spec.template.metadata.labels['restartAfterImageUpdates'].replace(/\s/g, '').split(','))
+              deploymentLabels['restartAfterImageUpdates'].replace(/\s/g, '').split(','))
         }
-        if (deployment.spec.template.metadata.labels['update'] === 'auto' &&
+        if (deploymentLabels['update'] === 'auto' &&
           deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always') {
           dependencies.push(deployment.spec.template.spec.containers[0].image)
         }
@@ -40,18 +42,18 @@ module.exports = {
               const deploymentDate = Date.parse(deployment.version)
               if (repoImageDate > deploymentDate) {
                 if (NOW > deploymentDate + COOL_OFF_PERIOD) {
-                  if (graph.isSubGraphStable(deploymentGraph, deployment.metadata.labels.app)) {
+                  if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
                     resolve('restart')
                   } else {
-                    debug('Delaying restart for %s (subgraph not stable)', deployment.metadata.labels.app)
+                    debug('Delaying restart for %s (subgraph not stable)', deploymentId)
                     resolve(null)
                   }
                 } else {
-                  debug('Delaying restart for %s (cool off period)', deployment.metadata.labels.app)
+                  debug('Delaying restart for %s (cool off period)', deploymentId)
                   resolve(null)
                 }
               } else {
-                debug('No need to update %s', deployment.metadata.labels.app)
+                debug('No need to update %s', deploymentId)
                 resolve(null)
               }
             }).catch((err) => {
@@ -62,8 +64,8 @@ module.exports = {
         }
         Promise.all(promises).then((values) => {
           if (values.indexOf('restart') >= 0) {
-            debug('Restarting deployment %s', deployment.metadata.labels.app)
-            context.kubernetes.restartDeployment(deployment.metadata.labels.app)
+            debug('Restarting deployment %s', deploymentId)
+            context.kubernetes.restartDeployment(deploymentId)
               .then((r) => debug('Restart called: %s', JSON.stringify(r)))
               .catch((err) => debug(err))
           }
