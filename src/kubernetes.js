@@ -18,6 +18,7 @@ const getDeployments = () => {
               .then((pods) => {
                 const deploymentVersions = {}
                 pods.body.items.forEach((pod) => {
+                  // find the oldest pod for each deployment
                   if (pod.metadata !== undefined &&
                     pod.metadata.labels !== undefined &&
                     pod.metadata.labels.app !== undefined &&
@@ -30,6 +31,7 @@ const getDeployments = () => {
                 })
 
                 const patchedDeployments = []
+                // patch deployments with pods with their oldest pod's start time
                 deployments.body.items.forEach((deployment) => {
                   if (deployment.metadata !== undefined &&
                     deployment.metadata.labels !== undefined &&
