@@ -5,20 +5,39 @@ const expect = chai.expect
 const deployer = require('./../src/image-deployer.js')
 
 const appConfig = (id, version, labels, stable) => ({
-  id: id,
+  spec: {
+    template: {
+      metadata: {
+        labels: labels || {}
+      },
+      spec: {
+        containers: [
+          {
+            imagePullPolicy: 'Always'
+          }
+        ]
+      }
+    }
+  },
+  metadata: {
+    labels: {
+      app: id
+    }
+  },
+  status: {
+    replicas: 1,
+    readyReplicas: stable ? 1 : 0,
+    updatedReplicas: stable ? 1 : 0,
+    availableReplicas: stable ? 1 : 0
+  },
   version: version.toISOString(),
-  labels: labels || {},
-  tasksHealthy: stable ? 1 : 0,
-  instances: 1,
-  tasksStaged: 0,
-  tasksUnhealthy: stable ? 0 : 1,
   container: { docker: { forcePullImage: true } }
 })
 
 const failIfRestart = (repoDate) => ({
-  marathon: {
-    restartService: function () {
-      assert(false, 'service restart was called when it should not have')
+  kubernetes: {
+    restartDeployment: function () {
+      assert(false, 'deployment restart was called when it should not have')
     }
   },
   dockerRepo: {
@@ -31,8 +50,8 @@ const failIfRestart = (repoDate) => ({
 const countRestarts = (repoDate) => {
   let count = 0
   return {
-    marathon: {
-      restartService: function () {
+    kubernetes: {
+      restartDeployment: function () {
         count += 1
         return Promise.resolve('restarted!')
       }
@@ -51,8 +70,8 @@ const NOW = new Date().getTime()
 describe('image-deployer', function () {
   it('image should update when subgraph is stable and cool off period has ended', (done) => {
     const testApps = [
-      appConfig('/app1', new Date(NOW - 60 * 60 * 1000), { 'update': 'auto' }, true),
-      appConfig('/app2', new Date(NOW), { 'restart-after-services': '/app1', 'restart-delay': '5' }, true)
+      appConfig('app1', new Date(NOW - 60 * 60 * 1000), { 'update': 'auto' }, true),
+      appConfig('app2', new Date(NOW), { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
     ]
     let counter = countRestarts(new Date(NOW + 1))
     deployer.command(testApps, counter)
@@ -64,8 +83,8 @@ describe('image-deployer', function () {
 
   it('no image should be deployed when subgraph is not stable', (done) => {
     const testApps = [
-      appConfig('/app1', new Date(NOW), { 'update': 'auto' }, false),
-      appConfig('/app2', new Date(NOW), { 'restart-after-services': '/app1', 'restart-delay': '5' }, true)
+      appConfig('app1', new Date(NOW), { 'update': 'auto' }, false),
+      appConfig('app2', new Date(NOW), { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
     ]
     setTimeout(function () {
       deployer.command(testApps, failIfRestart(new Date(NOW + 1)))
@@ -75,8 +94,8 @@ describe('image-deployer', function () {
 
   it('image should not update when the running version is newer', (done) => {
     const testApps = [
-      appConfig('/app1', new Date(NOW), { 'update': 'auto' }, true),
-      appConfig('/app2', new Date(NOW), { 'restart-after-services': '/app1', 'restart-delay': '5' }, true)
+      appConfig('app1', new Date(NOW), { 'update': 'auto' }, true),
+      appConfig('app2', new Date(NOW), { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
     ]
     let counter = countRestarts(new Date(NOW - 1))
     deployer.command(testApps, counter)
@@ -86,9 +105,9 @@ describe('image-deployer', function () {
     }, 10)
   })
 
-  it('service should restart when one of the dependency images is updated', (done) => {
+  it('deployment should restart when one of the dependency images is updated', (done) => {
     const testApps = [
-      appConfig('/app1', new Date(NOW - 60 * 60 * 1000), { 'restart-after-image-updates': 'digitransit-ui' }, true)
+      appConfig('app1', new Date(NOW - 60 * 60 * 1000), { 'restartAfterImageUpdates': 'digitransit-ui' }, true)
     ]
     let counter = countRestarts(new Date(NOW + 1))
     deployer.command(testApps, counter)
@@ -98,10 +117,10 @@ describe('image-deployer', function () {
     }, 10)
   })
 
-  it('service should restart only once when multiple dependency images are updated', (done) => {
+  it('deployment should restart only once when multiple dependency images are updated', (done) => {
     const testApps = [
-      appConfig('/app1', new Date(NOW - 60 * 60 * 1000),
-        { 'update': 'auto', 'restart-after-image-updates': 'digitransit-ui, digitransit-site' }, true)
+      appConfig('app1', new Date(NOW - 60 * 60 * 1000),
+        { 'update': 'auto', 'restartAfterImageUpdates': 'digitransit-ui, digitransit-site' }, true)
     ]
     let counter = countRestarts(new Date(NOW + 1))
     deployer.command(testApps, counter)
