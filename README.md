@@ -64,11 +64,3 @@ Restarts deployment at 04:30. Attempts to restart deployment stop after deployme
 
 ### "restartLimitInterval": "240"
 Optional label that defines in minutes how long time has to be since the last restart for a restart to trigger at the time defined in "restartAt" label. If "restartLimitInterval" is not defined, the default value will be 1080 minutes (18 hours).
-
-## Monitoring
-
-Monitoring is used for four purposes, if deployments are configured to restart each other in a cycle, to check if there are deployment deployments stuck in waiting state, to see if nodes drop out of network and to check the health status of the nodes.
-
-If deployments are configured to start each other in a cycle or a deployment is stuck in waiting state, message will be sent to given slack webhook.
-
-If a node goes unhealthy or drops out of the network, a message will be sent to slack. If node(s) are added to the network, the number of added nodes will be posted to slack.
