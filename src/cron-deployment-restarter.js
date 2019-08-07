@@ -10,7 +10,7 @@ const graph = require('./graph.js')
  * since the last restart of the deployment. Alternatively, you can define in
  * restartLimitInterval label how many minutes should be passed since the last restart before
  * another restart can occur.
- * The last chance for the restart to occur is 60 minutes past the time defined in restart-at label.
+ * The last chance for the restart to occur is 60 minutes past the time defined in restartAt label.
  */
 
 const getDateObject = ([hour, minute]) => {

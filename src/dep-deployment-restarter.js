@@ -16,7 +16,7 @@ const { postSlackMessage } = require('./util')
  *
  * /deployment-name is the dependent mesos deployment name (including the
  * leading '/').
- * restart-delay is in minutes, specifying this to 1 means that restart is not
+ * restartDelay is in minutes, specifying this to 1 means that restart is not
  * triggered before 1 minutes have elapsed from restarting of the dependent
  * deployment. This also means that if deployment has restarted during delay period
  * it will be restarted after dependency restart time + delay has passed.

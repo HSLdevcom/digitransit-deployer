@@ -35,7 +35,7 @@ const checkDeployments = () => {
         }
       })
   })
-    .catch((err) => debug("Couldn't get services: " + err))
+    .catch((err) => debug("Couldn't get deployments: " + err))
 }
 
 // TODO maybe implement this for kubernetes

@@ -10,8 +10,8 @@ const addDepEdges = (graph, deployment, deployments) => {
     if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependencyName)).length > 0) {
       graph.addEdge(deployment, dependency, { delay })
     } else {
-      debug(`${dependencyName} does not exist but is defined as a dependency for service.id`)
-      postSlackMessage(`${dependencyName} does not exist but is defined as a dependency for service.id`)
+      debug(`${dependencyName} does not exist but is defined as a dependency for a deployment`)
+      postSlackMessage(`${dependencyName} does not exist but is defined as a dependency for a deployment`)
     }
   })
 }
@@ -25,7 +25,7 @@ const needsRestart = (graph, from, to, edge) => {
 }
 
 const hasPendingDependentRestarts = (graph, deploymentId) => {
-  // has pending dependent restart if the deploymentId or any vertex that service
+  // has pending dependent restart if the deploymentId or any vertex that deployment
   // has Path to has pending restarts
 
   for (let [dependency, , edge] of graph.verticesFrom(deploymentId)) {
