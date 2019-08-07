@@ -28,7 +28,7 @@ module.exports = {
         if (deploymentLabels['restartAfterImageUpdates']) {
           dependencies =
             dependencies.concat(
-              deploymentLabels['restartAfterImageUpdates'].replace(/\s/g, '').split(','))
+              deploymentLabels['restartAfterImageUpdates'].replace(/\s/g, '').split('_'))
         }
         if (deploymentLabels['update'] === 'auto' &&
           deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always') {

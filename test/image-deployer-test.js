@@ -120,7 +120,7 @@ describe('image-deployer', function () {
   it('deployment should restart only once when multiple dependency images are updated', (done) => {
     const testApps = [
       appConfig('app1', new Date(NOW - 60 * 60 * 1000),
-        { 'update': 'auto', 'restartAfterImageUpdates': 'digitransit-ui, digitransit-site' }, true)
+        { 'update': 'auto', 'restartAfterImageUpdates': 'digitransit-ui_digitransit-site' }, true)
     ]
     let counter = countRestarts(new Date(NOW + 1))
     deployer.command(testApps, counter)

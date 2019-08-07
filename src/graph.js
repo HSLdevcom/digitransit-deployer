@@ -5,7 +5,7 @@ const { postSlackMessage } = require('./util')
 const addDepEdges = (graph, deployment, deployments) => {
   const deploymentLabels = deployment.spec.template.metadata.labels
   const dependencies = deploymentLabels['restartAfterDeployments']
-    .split(' ')
+    .split('_')
     .filter((unfilteredDeployment) => /\S/.test(unfilteredDeployment)) // remove elements that consists of just whitespace
   const delay = (deploymentLabels['restartDelay'] || 5) * 60 * 1000
   const deploymentName = deployment.metadata.labels.app

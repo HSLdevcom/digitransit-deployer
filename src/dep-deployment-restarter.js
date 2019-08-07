@@ -11,7 +11,7 @@ const { postSlackMessage } = require('./util')
  *  restartDelay=5
  *
  *  or multiple:
- *  restartAfterDeployments=deployment-name another-deployment
+ *  restartAfterDeployments=deployment-name_another-deployment
  *  restartDelay=5
  *
  * deployment-name is the dependent kubernetes deployment name.

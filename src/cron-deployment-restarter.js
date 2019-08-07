@@ -4,8 +4,8 @@ const graph = require('./graph.js')
 /*
  * Automatically restarts deployments if they have a restartAt label defined.
  * Restart time is defined in the restartAt label with "hh.mm" format.
- * It is possible to define multiple restart points by separating them with commas,
- * for example "13.00, 18.50".
+ * It is possible to define multiple restart points by separating them with underscores,
+ * for example "13.00_18.50".
  * Deployment will not be restarted if it has not been at least 18 hours (by default)
  * since the last restart of the deployment. Alternatively, you can define in
  * restartLimitInterval label how many minutes should be passed since the last restart before
@@ -36,7 +36,7 @@ module.exports = {
           parseInt(deploymentLabels['restartLimitInterval']) || 60 * 18
 
         deploymentLabels['restartAt']
-          .split(' ')
+          .split('_')
           .filter((time) => /\S/.test(time)) // remove elements that consists of just whitespace
           .forEach(restartTime => {
             if (!attemptedRestart) {

@@ -27,8 +27,8 @@ Deployer configuration is stored in labels. For example take a look at TODO CHAN
 Automatic image updates are enabled for deployment.
 
 ### "restartAfterDeployments": "opentripplanner-data-con-hsl"
-Restart this deployment when deployment /opentripplanner-data-con-hsl is restarted.
-It is possible to add multiple dependencies by separating them with whitespace
+Restart this deployment when deployment opentripplanner-data-con-hsl is restarted.
+It is possible to add multiple dependencies by separating them with underscore
 
 ### "restartDelay": "1"
 Wait at minimum 1 minute before restarting this deployment (because of dependant deployment has restarted)
@@ -38,7 +38,7 @@ Wait at minimum 1 minute before restarting this deployment (because of dependant
 ```json
   "labels": {
     "update": "auto",
-    "restartAfterImageUpdates": "digitransit-ui:prod, digitransit-site:prod"
+    "restartAfterImageUpdates": "digitransit-ui:prod_digitransit-site:prod"
   },
 ```
 
@@ -60,7 +60,7 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
 ```
 
 ### "restartAt": "04.30"
-Restarts deployment at 04:30. Attempts to restart deployment stop after deployment has been successfully restarted or an hour has passed. It is possible to define multiple restart points by separating them with whitespace, for example "restartAt": "13.00 18.50".
+Restarts deployment at 04:30. Attempts to restart deployment stop after deployment has been successfully restarted or an hour has passed. It is possible to define multiple restart points by separating them with underscores, for example "restartAt": "13.00_18.50".
 
 ### "restartLimitInterval": "240"
 Optional label that defines in minutes how long time has to be since the last restart for a restart to trigger at the time defined in "restartAt" label. If "restartLimitInterval" is not defined, the default value will be 1080 minutes (18 hours).
