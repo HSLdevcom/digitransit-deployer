@@ -3,15 +3,15 @@ const debug = require('debug')('graph')
 const { postSlackMessage } = require('./util')
 
 const addDepEdges = (graph, deployment, deployments) => {
-  let dependencies = deployment.spec.template.metadata.labels['restartAfterDeployments'].split(',')
+  const dependencies = deployment.spec.template.metadata.labels['restartAfterDeployments'].split(',')
   const delay = (deployment.spec.template.metadata.labels['restartDelay'] || 5) * 60 * 1000
+  const deploymentName = deployment.metadata.labels.app
   dependencies.forEach(dependency => {
-    const dependencyName = dependency.metadata.labels.app
-    if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependencyName)).length > 0) {
-      graph.addEdge(deployment, dependency, { delay })
+    if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependency)).length > 0) {
+      graph.addEdge(deploymentName, dependency, { delay })
     } else {
-      debug(`${dependencyName} does not exist but is defined as a dependency for a deployment`)
-      postSlackMessage(`${dependencyName} does not exist but is defined as a dependency for a deployment`)
+      debug(`${dependency} does not exist but is defined as a dependency for a deployment`)
+      postSlackMessage(`${dependency} does not exist but is defined as a dependency for a deployment`)
     }
   })
 }
@@ -42,8 +42,8 @@ const hasPendingDependentRestarts = (graph, deploymentId) => {
 }
 
 const deploymentIsStable = (deployment) =>
-  deployment.replicas > 0 && deployment.readyReplicas === deployment.replicas &&
-  deployment.updatedReplicas === deployment.replicas && deployment.availableReplicas === deployment.replicas
+  deployment.status.replicas > 0 && deployment.status.readyReplicas === deployment.status.replicas &&
+  deployment.status.updatedReplicas === deployment.status.replicas && deployment.status.availableReplicas === deployment.status.replicas
 
 module.exports = {
   build: (deployments) => {
