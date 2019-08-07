@@ -55,14 +55,14 @@ const getDeployments = () => {
 }
 
 // Restart by modifying deployment label because kubernetes does not have deployment restart functionality in 1.13 API version
+// It is important the deployment name and label "app" have same values
 const restartDeployment = (appId) => {
   return new Promise((resolve, reject) => {
     client.loadSpec()
       .then(() => {
-        client.apis.apps.v1.namespaces('default').deployments()
+        client.apis.apps.v1.namespaces('default').deployments(appId)
           .patch({
-            qs: { labelSelector: `app=${appId}` },
-            body: { spec: { template: { metadata: { labels: { lastRestartDate: Date.now() } } } } }
+            body: { spec: { template: { metadata: { labels: { lastRestartDate: Date.now().toString() } } } } }
           })
           .then(() => {
             resolve(appId)
