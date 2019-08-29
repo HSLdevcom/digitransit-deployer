@@ -7,12 +7,12 @@ const { postSlackMessage } = require('./util')
  * useful because we have data as container and we want to restart containers
  * that depend on that data.
  * Configured with labels as follows:
- *  restartAfterDeployments=deployment-name
- *  restartDelay=5
+ *  restartAfterDeployments: "deployment-name"
+ *  restartDelay: "5"
  *
  *  or multiple:
- *  restartAfterDeployments=deployment-name_another-deployment
- *  restartDelay=5
+ *  restartAfterDeployments: "deployment-name_another-deployment"
+ *  restartDelay: "5"
  *
  * deployment-name is the dependent kubernetes deployment name.
  * restartDelay is in minutes, specifying this to 1 means that restart is not

@@ -8,7 +8,7 @@ const logError = (e) => {
 const COOL_OFF_PERIOD = 60 * 60 * 1000 // 1 hour
 
 /*
- * Automatically deploys new container versions for deployments that are tagged with update=auto and have imagePullPolicy configured as Always.
+ * Automatically deploys new container versions for deployments that are tagged with update: "auto" and have imagePullPolicy configured as Always.
  * Also restarts deployment if one of the dependency images/tags defined in label restartAfterImageUpdates are updated.
  */
 module.exports = {
