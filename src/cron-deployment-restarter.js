@@ -27,11 +27,11 @@ module.exports = {
     const NOW = new Date().getTime()
     let attemptedRestart = false
 
-    deployments.filter((deployment) => deployment.spec.template.metadata.labels['restartAt'])
+    deployments.filter((deployment) => deployment.metadata.labels['restartAt'])
       .forEach(deployment => {
         const deploymentDate = Date.parse(deployment.version)
-        const deploymentId = deployment.metadata.labels.app
-        const deploymentLabels = deployment.spec.template.metadata.labels
+        const deploymentLabels = deployment.metadata.labels
+        const deploymentId = deploymentLabels.app
         const restartIntervalMins =
           parseInt(deploymentLabels['restartLimitInterval']) || 60 * 18
 

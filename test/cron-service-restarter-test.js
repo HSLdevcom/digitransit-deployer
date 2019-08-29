@@ -4,16 +4,10 @@ const { assert, expect } = chai
 const restarter = require('./../src/cron-deployment-restarter.js')
 
 const appConfig = (id, version, labels, stable) => ({
-  spec: {
-    template: {
-      metadata: {
-        labels: labels || {}
-      }
-    }
-  },
   metadata: {
     labels: {
-      app: id
+      app: id,
+      ...labels
     }
   },
   status: {

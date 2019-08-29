@@ -5,16 +5,10 @@ const expect = chai.expect
 const restarter = require('./../src/dep-deployment-restarter.js')
 
 const appConfig = (id, version, labels, stable) => ({
-  spec: {
-    template: {
-      metadata: {
-        labels: labels || {}
-      }
-    }
-  },
   metadata: {
     labels: {
-      app: id
+      app: id,
+      ...labels
     }
   },
   status: {

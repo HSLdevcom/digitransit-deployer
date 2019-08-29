@@ -18,12 +18,12 @@ module.exports = {
 
     const NOW = new Date().getTime()
 
-    deployments.filter((deployment) => deployment.spec.template.metadata.labels['restartAfterImageUpdates'] ||
-      (deployment.spec.template.metadata.labels['update'] === 'auto' &&
+    deployments.filter((deployment) => deployment.metadata.labels['restartAfterImageUpdates'] ||
+      (deployment.metadata.labels['update'] === 'auto' &&
       deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always'))
       .forEach(deployment => {
-        const deploymentId = deployment.metadata.labels.app
-        const deploymentLabels = deployment.spec.template.metadata.labels
+        const deploymentLabels = deployment.metadata.labels
+        const deploymentId = deploymentLabels.app
         let dependencies = []
         if (deploymentLabels['restartAfterImageUpdates']) {
           dependencies =

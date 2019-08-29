@@ -7,9 +7,6 @@ const deployer = require('./../src/image-deployer.js')
 const appConfig = (id, version, labels, stable) => ({
   spec: {
     template: {
-      metadata: {
-        labels: labels || {}
-      },
       spec: {
         containers: [
           {
@@ -21,7 +18,8 @@ const appConfig = (id, version, labels, stable) => ({
   },
   metadata: {
     labels: {
-      app: id
+      app: id,
+      ...labels
     }
   },
   status: {
