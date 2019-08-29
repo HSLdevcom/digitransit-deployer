@@ -33,20 +33,6 @@ It is possible to add multiple dependencies by separating them with underscore
 ### restartDelay: "1"
 Wait at minimum 1 minute before restarting this deployment (because of dependant deployment has restarted)
 
-## Restarts based on dependencies to other images
-
-```yaml
-  metadata:
-    labels:
-      update: "auto"
-      restartAfterImageUpdates: "digitransit-ui:prod_digitransit-site:prod"
-    },
-  }
-```
-
-### restartAfterImageUpdates: "digitransit-ui:prod, digitransit-site:prod"
-Restart deployment if digitransit-ui:prod or digitransit-site:prod images have been updated.
-
 ## Cron style autorestarter configuration
 
 Labels are also used for the periodic (cron style) restarts. These labels can coexist with the labels required for the auto deployments. Example label use below:

@@ -9,7 +9,6 @@ const COOL_OFF_PERIOD = 60 * 60 * 1000 // 1 hour
 
 /*
  * Automatically deploys new container versions for deployments that are tagged with update: "auto" and have imagePullPolicy configured as Always.
- * Also restarts deployment if one of the dependency images/tags defined in label restartAfterImageUpdates are updated.
  */
 module.exports = {
   name: 'image-deployer',
@@ -18,22 +17,13 @@ module.exports = {
 
     const NOW = new Date().getTime()
 
-    deployments.filter((deployment) => deployment.metadata.labels['restartAfterImageUpdates'] ||
-      (deployment.metadata.labels['update'] === 'auto' &&
-      deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always'))
+    deployments.filter((deployment) => deployment.metadata.labels['update'] === 'auto' &&
+      deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always')
       .forEach(deployment => {
         const deploymentLabels = deployment.metadata.labels
         const deploymentId = deploymentLabels.app
         let dependencies = []
-        if (deploymentLabels['restartAfterImageUpdates']) {
-          dependencies =
-            dependencies.concat(
-              deploymentLabels['restartAfterImageUpdates'].replace(/\s/g, '').split('_'))
-        }
-        if (deploymentLabels['update'] === 'auto' &&
-          deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always') {
-          dependencies.push(deployment.spec.template.spec.containers[0].image)
-        }
+        dependencies.push(deployment.spec.template.spec.containers[0].image)
         const promises = []
         for (let i = 0; i < dependencies.length; i++) {
           const dependency = dependencies[i]
