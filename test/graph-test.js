@@ -59,7 +59,7 @@ describe('graph-builder', function () {
       appConfig('app3', new Date(NOW), { 'restartAfterDeployments': 'app2', 'restartDelay': '5' }, true)
     ]
     let deploymentGraph = graph.build(testApps)
-    expect(graph.isSubGraphStable(deploymentGraph, 'app1')).to.equal(false)
+    expect(graph.isSubGraphStable(deploymentGraph, 'app1')).to.equal(true)
     expect(graph.isSubGraphStable(deploymentGraph, 'app2')).to.equal(false)
     expect(graph.isSubGraphStable(deploymentGraph, 'app3')).to.equal(false)
   })

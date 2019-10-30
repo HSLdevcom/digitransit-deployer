@@ -64,15 +64,11 @@ module.exports = {
     return graph
   },
   isSubGraphStable: (graph, vertexId) => {
-    // sub graph is stable if the vertex and all vertexes accessible from the
-    // vertex and all vertexes that have path to vertex are stable
+    // sub graph is stable if the vertex and all vertexes accessible from the vertex
     let vertex = graph.vertexValue(vertexId)
     if (!deploymentIsStable(vertex)) return false
 
     for (let [, vertexValue] of graph.verticesWithPathFrom(vertexId)) {
-      if (!deploymentIsStable(vertexValue)) return false
-    }
-    for (let [, vertexValue] of graph.verticesWithPathTo(vertexId)) {
       if (!deploymentIsStable(vertexValue)) return false
     }
     return true
