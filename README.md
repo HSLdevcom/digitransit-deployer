@@ -11,19 +11,19 @@ Additionally, some deployments are restarted periodically.
 
 ## Autodeployer configuration
 
-Deployer configuration is stored in labels. For example take a look at TODO CHANGE THIS https://github.com/HSLdevcom/digitransit-mesos-deploy/blob/master/digitransit-azure-deploy/files/opentripplanner-hsl-prod.json where we have labels set as follows:
+Deployer configuration is stored in labels. For example take a look at https://github.com/HSLdevcom/digitransit-kubernetes-deploy/blob/master/roles/aks-apply/files/prod/opentripplanner-hsl-prod.yml where we have labels set as follows:
 
 ```yaml
   metadata:
     labels:
       update: "auto"
       restartAfterDeployments: "opentripplanner-data-con-hsl"
-      restartDelay: "1"
+      restartDelay: "5"
     },
   }
 ```
 
-### update: "auto
+### update: "auto"
 Automatic image updates are enabled for deployment.
 
 ### restartAfterDeployments: "opentripplanner-data-con-hsl"
