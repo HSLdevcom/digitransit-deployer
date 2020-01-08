@@ -13,27 +13,13 @@
   "dependencies": {
     "@slack/client": "^4.8.0",
     "child-process-promise": "^2.2.1",
-    "dashdash": "^1.14.1",
     "debug": "^4.1.0",
     "docker-registry-client": "^3.2.6",
     "graph.js": "^1.21.1",
-    "jsonfile": "^5.0.0",
+    "kubernetes-client": "^8.3.3",
     "lodash.difference": "^4.5.0",
-    "lodash.includes": "^4.3.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.isobject": "^3.0.2",
-    "lodash.transform": "^4.6.0",
-    "marathon-node": "^1.1.0",
-    "read": "^1.0.7",
-    "request": "^2.83.0",
-    "request-promise": "^4.2.1",
-    "simple-git": "^1.80.1"
-  },
-  "eslintConfig": {
-    "env": {
-      "es6": true,
-      "node": true
-    }
+    "request": "^2.88.0",
+    "request-promise": "^4.2.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",

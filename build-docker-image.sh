@@ -21,12 +21,17 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
     docker pull $ORG/$DOCKER_IMAGE:$DOCKER_TAG
     tagandpush "prod"
   else
+    echo "processing $TRAVIS_BRANCH build $TRAVIS_COMMIT"
     if [ "$TRAVIS_BRANCH" = "master" ]; then
-      echo "processing master build $TRAVIS_COMMIT"
       #master branch, build and tag as latest
       docker build --tag="$ORG/$DOCKER_IMAGE:$DOCKER_TAG" .
       docker push $ORG/$DOCKER_IMAGE:$DOCKER_TAG
       tagandpush "latest"
+    elif [ "$TRAVIS_BRANCH" = "kubernetes" ]; then
+      #kubernetes branch, build and tag as kubernetes
+      docker build --tag="$ORG/$DOCKER_IMAGE:$DOCKER_TAG" .
+      docker push $ORG/$DOCKER_IMAGE:$DOCKER_TAG
+      tagandpush "kubernetes"
     else
       #check if branch is greenkeeper branch
       echo Not Pushing greenkeeper to docker hub
