@@ -122,14 +122,6 @@ describe('dep-deployment-restarter', function () {
     restarter.command(testApps, failIfRestart)
   })
 
-  it('no apps should restart when deployment is not stable', () => {
-    const testApps = [
-      appConfig('app1', new Date(NOW - minutes(5)), {}, true),
-      appConfig('app2', new Date(NOW - minutes(5)), { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, false)
-    ]
-    restarter.command(testApps, failIfRestart)
-  })
-
   it('incorrect dependency should be ignored and restart should be called because of valid dependency', () => {
     const testApps = [
       appConfig('app1', new Date(NOW - minutes(1)), {}, true),
