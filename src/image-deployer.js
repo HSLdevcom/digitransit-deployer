@@ -29,7 +29,7 @@ module.exports = {
           const dependency = dependencies[i]
           promises.push(new Promise((resolve) => {
             context.dockerRepo.getImageDate(dependency).then(repoImageDate => {
-              const deploymentDate = Date.parse(deployment.version)
+              const deploymentDate = deployment.version
               if (repoImageDate > deploymentDate) {
                 if (NOW > deploymentDate + COOL_OFF_PERIOD) {
                   if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {

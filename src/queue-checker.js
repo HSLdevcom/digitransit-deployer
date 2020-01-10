@@ -12,7 +12,7 @@ module.exports = {
     const NOW = new Date().getTime()
 
     deployments.forEach(deployment => {
-      const serviceDate = Date.parse(deployment.app.version)
+      const serviceDate = deployment.app.version
       if (NOW > serviceDate + COOL_OFF_PERIOD) {
         postSlackMessage(deployment.app.id + ': deployment is stuck.')
       }

@@ -16,30 +16,35 @@ const getDeployments = () => {
           .then((deployments) => {
             client.api.v1.namespaces('default').pods().get()
               .then((pods) => {
-                const deploymentVersions = {}
+                const oldestPodsEpochs = {}
                 pods.body.items.forEach((pod) => {
-                  // find the oldest pod for each deployment
+                  // for each deployment, store the oldest pod's start time
                   if (pod.metadata !== undefined &&
                     pod.metadata.labels !== undefined &&
                     pod.metadata.labels.app !== undefined &&
                     pod.status !== undefined &&
                     pod.status.startTime !== undefined &&
-                    (deploymentVersions[pod.metadata.labels.app] === undefined ||
-                      pod.status.startTime < deploymentVersions[pod.metadata.labels.app])) {
-                    deploymentVersions[pod.metadata.labels.app] = pod.status.startTime
+                    (oldestPodsEpochs[pod.metadata.labels.app] === undefined ||
+                      pod.status.startTime < oldestPodsEpochs[pod.metadata.labels.app])) {
+                    oldestPodsEpochs[pod.metadata.labels.app] = Date.parse(pod.status.startTime)
                   }
                 })
 
                 const patchedDeployments = []
-                // patch deployments with pods with their oldest pod's start time
+                // patch deployments with last deployment time if that exists
+                // or with oldest pod's start time
                 deployments.body.items.forEach((deployment) => {
                   if (deployment.metadata !== undefined &&
                     deployment.metadata.labels !== undefined &&
                     deployment.metadata.labels.app !== undefined &&
-                    deploymentVersions[deployment.metadata.labels.app] !== undefined) {
+                    oldestPodsEpochs[deployment.metadata.labels.app] !== undefined) {
+                    const { lastRestartDate } = deployment.template.metadata.labels
+                    const version = lastRestartDate
+                      ? parseInt(lastRestartDate, 10)
+                      : oldestPodsEpochs[deployment.metadata.labels.app]
                     patchedDeployments.push(
                       { ...deployment,
-                        version: deploymentVersions[deployment.metadata.labels.app] })
+                        version })
                   } else {
                     debug('Could not find pods for deployment %s', JSON.stringify(deployment))
                   }

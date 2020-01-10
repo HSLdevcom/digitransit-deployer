@@ -21,8 +21,8 @@ const addDepEdges = (graph, deployment, deployments) => {
 
 const needsRestart = (graph, from, to, edge) => {
   // needs restart if deployment time is smaller than dependency time + delay
-  const deploymentTime = Date.parse(graph.vertexValue(from).version)
-  const dependencyTime = Date.parse(graph.vertexValue(to).version)
+  const deploymentTime = graph.vertexValue(from).version
+  const dependencyTime = graph.vertexValue(to).version
   const needsStart = dependencyTime + edge.delay > deploymentTime
   return needsStart
 }
