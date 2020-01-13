@@ -21,8 +21,8 @@ const addDepEdges = (graph, deployment, deployments) => {
 
 const needsRestart = (graph, from, to, edge) => {
   // needs restart if deployment time is smaller than dependency time + delay
-  const deploymentTime = Date.parse(graph.vertexValue(from).version)
-  const dependencyTime = Date.parse(graph.vertexValue(to).version)
+  const deploymentTime = graph.vertexValue(from).version
+  const dependencyTime = graph.vertexValue(to).version
   const needsStart = dependencyTime + edge.delay > deploymentTime
   return needsStart
 }
@@ -64,10 +64,7 @@ module.exports = {
     return graph
   },
   isSubGraphStable: (graph, vertexId) => {
-    // sub graph is stable if the vertex and all vertexes accessible from the vertex
-    let vertex = graph.vertexValue(vertexId)
-    if (!deploymentIsStable(vertex)) return false
-
+    // sub graph is stable if all vertexes accessible from the vertex
     for (let [, vertexValue] of graph.verticesWithPathFrom(vertexId)) {
       if (!deploymentIsStable(vertexValue)) return false
     }

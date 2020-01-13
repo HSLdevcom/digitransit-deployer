@@ -29,7 +29,7 @@ module.exports = {
 
     deployments.filter((deployment) => deployment.metadata.labels['restartAt'])
       .forEach(deployment => {
-        const deploymentDate = Date.parse(deployment.version)
+        const deploymentDate = deployment.version
         const deploymentLabels = deployment.metadata.labels
         const deploymentId = deploymentLabels.app
         const restartIntervalMins =

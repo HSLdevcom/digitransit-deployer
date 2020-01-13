@@ -41,8 +41,8 @@ module.exports = {
         debug('deployment %s needs restart', from)
         // check that enough time has passed after all depedency restarts
         for (let [, vertexValue] of deploymentGraph.verticesFrom(from)) {
-          debug('checking %s %s', NOW, Date.parse(vertexValue.version))
-          if (NOW <= Date.parse(vertexValue.version) + value.delay) {
+          debug('checking %s %s', NOW, vertexValue.version)
+          if (NOW <= vertexValue.version + value.delay) {
             return false
           }
         }
