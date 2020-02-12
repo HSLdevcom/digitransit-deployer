@@ -40,6 +40,7 @@ const getDeployments = () => {
                     oldestPodsEpochs[deployment.metadata.labels.app] !== undefined) {
                     const { lastRestartDate } = deployment.spec.template.metadata.labels
                     const parsedDate = parseInt(lastRestartDate, 10)
+                    // if lastRestartDate is not a number, parsedDate is falsy
                     const version = parsedDate || oldestPodsEpochs[deployment.metadata.labels.app]
                     patchedDeployments.push({ ...deployment, version })
                   } else {
