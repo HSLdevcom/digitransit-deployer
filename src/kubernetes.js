@@ -39,9 +39,8 @@ const getDeployments = () => {
                     deployment.metadata.labels.app !== undefined &&
                     oldestPodsEpochs[deployment.metadata.labels.app] !== undefined) {
                     const { lastRestartDate } = deployment.spec.template.metadata.labels
-                    const version = lastRestartDate
-                      ? parseInt(lastRestartDate, 10)
-                      : oldestPodsEpochs[deployment.metadata.labels.app]
+                    const parsedDate = parseInt(lastRestartDate, 10)
+                    const version = parsedDate || oldestPodsEpochs[deployment.metadata.labels.app]
                     patchedDeployments.push({ ...deployment, version })
                   } else {
                     debug('Could not find pods for deployment %s', JSON.stringify(deployment))
