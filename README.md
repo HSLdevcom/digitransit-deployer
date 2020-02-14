@@ -9,6 +9,22 @@ Autodeployer also takes care of restarting dependant deployments. For example wh
 
 Additionally, some deployments are restarted periodically.
 
+## Prerequisites
+
+Deployments should have the following labels defined as deployer uses `app` as an identifier for finding deployments/pods and `lastRestartDate` should exist because deployer at runtime restarts services by updating that label to be epoch time from the restart moment and it also checks when deployment was last "restarted" by reading that value. If the value is not a number, deployer ignores it and checks what is the age of the oldest pod to determine the age of the deployment.
+```yaml
+metadata:
+  name: <deployment name>
+  labels:
+    app: <deployment name>
+spec:
+  template:
+    metadata:
+      labels:
+        app: <deployment name>
+        lastRestartDate: dummy-value
+```
+
 ## Autodeployer configuration
 
 Deployer configuration is stored in labels. For example take a look at https://github.com/HSLdevcom/digitransit-kubernetes-deploy/blob/master/roles/aks-apply/files/prod/opentripplanner-hsl-prod.yml where we have labels set as follows:
@@ -19,8 +35,6 @@ Deployer configuration is stored in labels. For example take a look at https://g
       update: "auto"
       restartAfterDeployments: "opentripplanner-data-con-hsl"
       restartDelay: "5"
-    },
-  }
 ```
 
 ### update: "auto"
@@ -45,8 +59,6 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
       restartDelay: "1"
       restartAt: "04.30"
       restartLimitInterval: "240"
-    },
-  }
 ```
 
 ### restartAt: "04.30"
