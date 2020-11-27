@@ -1,4 +1,4 @@
-![Build](https://github.com/hsldevcom/digitransit-deployer/workflows/Process%20master%20push/badge.svg)
+[![Build](https://github.com/hsldevcom/digitransit-deployer/workflows/Process%20master%20push/badge.svg)](https://github.com/HSLdevcom/digitransit-deployer/actions)
 
 
 ## Autodeployer, autorestarter and monitoring for Digitransit deployments
