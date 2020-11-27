@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/HSLdevcom/digitransit-deployer.svg?branch=master)](https://travis-ci.org/HSLdevcom/digitransit-deployer) [![Greenkeeper badge](https://badges.greenkeeper.io/HSLdevcom/digitransit-deployer.svg)](https://greenkeeper.io/)
+![Build](https://github.com/hsldevcom/digitransit-deployer/workflows/Process%20master%20push/badge.svg)
 
 
 ## Autodeployer, autorestarter and monitoring for Digitransit deployments
