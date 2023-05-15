@@ -12,14 +12,12 @@
   "license": "(AGPL-3.0 OR EUPL-1.2)",
   "dependencies": {
     "@slack/client": "^4.8.0",
-    "child-process-promise": "^2.2.1",
-    "debug": "^4.1.0",
-    "docker-registry-client": "^3.2.6",
+    "axios": "^1.4.0",
+    "debug": "^4.3.4",
+    "docker-registry-client": "^3.3.1",
     "graph.js": "^1.21.1",
     "kubernetes-client": "^8.3.3",
-    "lodash.difference": "^4.5.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.1"
+    "lodash.difference": "^4.5.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
