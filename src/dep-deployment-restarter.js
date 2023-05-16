@@ -32,7 +32,7 @@ module.exports = {
   command: (deployments, context) => {
     const NOW = new Date().getTime()
 
-    let deploymentGraph = graph.build(deployments)
+    const deploymentGraph = graph.build(deployments)
     if (deploymentGraph.hasCycle()) {
       debug('Bummer! Graph has cycle, %s', deploymentGraph.toJSON())
       postSlackMessage('Deployments are configured to restart each other in a cycle.')
@@ -40,7 +40,7 @@ module.exports = {
       graph.deploymentsNeedingRestart(deploymentGraph).filter(({ from, value }) => {
         debug('deployment %s needs restart', from)
         // check that enough time has passed after all depedency restarts
-        for (let [, vertexValue] of deploymentGraph.verticesFrom(from)) {
+        for (const [, vertexValue] of deploymentGraph.verticesFrom(from)) {
           debug('checking %s %s', NOW, vertexValue.version)
           if (NOW <= vertexValue.version + value.delay) {
             return false

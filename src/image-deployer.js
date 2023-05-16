@@ -13,16 +13,16 @@ const COOL_OFF_PERIOD = 60 * 60 * 1000 // 1 hour
 module.exports = {
   name: 'image-deployer',
   command: function (deployments, context) {
-    let deploymentGraph = graph.build(deployments)
+    const deploymentGraph = graph.build(deployments)
 
     const NOW = new Date().getTime()
 
-    deployments.filter((deployment) => deployment.metadata.labels['update'] === 'auto' &&
+    deployments.filter((deployment) => deployment.metadata.labels.update === 'auto' &&
       deployment.spec.template.spec.containers[0].imagePullPolicy === 'Always')
       .forEach(deployment => {
         const deploymentLabels = deployment.metadata.labels
         const deploymentId = deploymentLabels.app
-        let dependencies = []
+        const dependencies = []
         dependencies.push(deployment.spec.template.spec.containers[0].image)
         const promises = []
         for (let i = 0; i < dependencies.length; i++) {
@@ -30,7 +30,7 @@ module.exports = {
           promises.push(new Promise((resolve) => {
             context.dockerRepo.getImageDate(dependency).then(repoImageDate => {
               const deploymentDate = deployment.version
-              if (repoImageDate > deploymentDate) {
+              if (repoImageDate && repoImageDate > deploymentDate) {
                 if (NOW > deploymentDate + COOL_OFF_PERIOD) {
                   if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
                     resolve('restart')

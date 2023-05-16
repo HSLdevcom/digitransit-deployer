@@ -68,10 +68,10 @@ const NOW = new Date().getTime()
 describe('image-deployer', function () {
   it('image should update when subgraph is stable and cool off period has ended', (done) => {
     const testApps = [
-      appConfig('app1', NOW - 60 * 60 * 1000, { 'update': 'auto' }, true),
-      appConfig('app2', NOW, { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
+      appConfig('app1', NOW - 60 * 60 * 1000, { update: 'auto' }, true),
+      appConfig('app2', NOW, { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
-    let counter = countRestarts(new Date(NOW + 1))
+    const counter = countRestarts(new Date(NOW + 1))
     deployer.command(testApps, counter)
     setTimeout(function () {
       expect(counter.get()).to.be.equal(1)
@@ -81,8 +81,8 @@ describe('image-deployer', function () {
 
   it('no image should be deployed when subgraph is not stable', (done) => {
     const testApps = [
-      appConfig('app1', NOW, { 'update': 'auto' }, false),
-      appConfig('app2', NOW, { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
+      appConfig('app1', NOW, { update: 'auto' }, false),
+      appConfig('app2', NOW, { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
     setTimeout(function () {
       deployer.command(testApps, failIfRestart(new Date(NOW + 1)))
@@ -92,10 +92,10 @@ describe('image-deployer', function () {
 
   it('image should not update when the running version is newer', (done) => {
     const testApps = [
-      appConfig('app1', NOW, { 'update': 'auto' }, true),
-      appConfig('app2', NOW, { 'restartAfterDeployments': 'app1', 'restartDelay': '5' }, true)
+      appConfig('app1', NOW, { update: 'auto' }, true),
+      appConfig('app2', NOW, { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
-    let counter = countRestarts(new Date(NOW - 1))
+    const counter = countRestarts(new Date(NOW - 1))
     deployer.command(testApps, counter)
     setTimeout(function () {
       expect(counter.get()).to.be.equal(0)

@@ -1,80 +1,88 @@
-const { Client, KubeConfig } = require('kubernetes-client')
-const Request = require('kubernetes-client/backends/request')
-
+const k8s = require('@kubernetes/client-node')
 const debug = require('debug')('kubernetes')
 
-const kubeconfig = new KubeConfig()
+const kubeconfig = new k8s.KubeConfig()
 kubeconfig.loadFromCluster()
-const backend = new Request({ kubeconfig })
-const client = new Client({ backend, version: '1.13' })
 
 const getDeployments = () => {
   return new Promise((resolve, reject) => {
-    client.loadSpec()
-      .then(() => {
-        client.apis.apps.v1.namespaces('default').deployments().get()
-          .then((deployments) => {
-            client.api.v1.namespaces('default').pods().get()
-              .then((pods) => {
-                const oldestPodsEpochs = {}
-                pods.body.items.forEach((pod) => {
-                  // for each deployment, store the oldest pod's start time
-                  if (pod.metadata !== undefined &&
-                    pod.metadata.labels !== undefined &&
-                    pod.metadata.labels.app !== undefined &&
-                    pod.status !== undefined &&
-                    pod.status.startTime !== undefined &&
-                    (oldestPodsEpochs[pod.metadata.labels.app] === undefined ||
-                      pod.status.startTime < oldestPodsEpochs[pod.metadata.labels.app])) {
-                    oldestPodsEpochs[pod.metadata.labels.app] = Date.parse(pod.status.startTime)
-                  }
-                })
-
-                const patchedDeployments = []
-                // patch deployments with last deployment time if that exists
-                // or with oldest pod's start time
-                deployments.body.items.forEach((deployment) => {
-                  if (deployment.metadata !== undefined &&
-                    deployment.metadata.labels !== undefined &&
-                    deployment.metadata.labels.app !== undefined &&
-                    oldestPodsEpochs[deployment.metadata.labels.app] !== undefined) {
-                    const { lastRestartDate } = deployment.spec.template.metadata.labels
-                    const parsedDate = parseInt(lastRestartDate, 10)
-                    // if lastRestartDate is not a number, parsedDate is falsy
-                    const version = parsedDate || oldestPodsEpochs[deployment.metadata.labels.app]
-                    patchedDeployments.push({ ...deployment, version })
-                  } else {
-                    debug('Could not find pods for deployment %s', JSON.stringify(deployment))
-                  }
-                })
-                resolve(patchedDeployments)
-              })
-          })
+    const appsApi = kubeconfig.makeApiClient(k8s.AppsV1Api)
+    const coreApi = kubeconfig.makeApiClient(k8s.CoreV1Api)
+    appsApi.listNamespacedDeployment('default').then(deploymentResponse => {
+      const promises = []
+      const deployments = deploymentResponse.body.items
+      for (const deployment of deployments) {
+        promises.push(new Promise(resolve => {
+          const deploymentName = deployment.metadata.name
+          const labelSelector = `app=${deploymentName}`
+          const { lastRestartDate } = deployment.spec.template.metadata.labels
+          const parsedDate = parseInt(lastRestartDate, 10)
+          if (parsedDate) {
+            debug(`Using lastRestartDate as version for deployment: ${deploymentName}`)
+            resolve({ ...deployment, version: parsedDate })
+          } else {
+            debug(`Fetching pods for deployment: ${deploymentName}`)
+            coreApi.listNamespacedPod(
+              'default',
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              labelSelector
+            ).then(podResponse => {
+              let oldestPodEpoch
+              const pods = podResponse.body.items
+              for (const pod of pods) {
+                if (pod.status.startTime !== undefined && (!oldestPodEpoch || Date.parse(pod.status.startTime) < oldestPodEpoch)) {
+                  oldestPodEpoch = Date.parse(pod.status.startTime)
+                }
+              }
+              resolve({ ...deployment, version: oldestPodEpoch })
+            })
+          }
+        }))
+      }
+      Promise.all(promises).then(values => {
+        resolve(values)
       })
+    })
       .catch((err) => {
         reject(err)
       })
   })
 }
 
-// Restart by modifying deployment label because kubernetes does not have deployment restart functionality in 1.13 API version
+// Restart by modifying deployment label.
 // It is important the deployment name and label "app" have same values
 const restartDeployment = (appId) => {
   return new Promise((resolve, reject) => {
-    client.loadSpec()
-      .then(() => {
-        client.apis.apps.v1.namespaces('default').deployments(appId)
-          .patch({
-            body: { spec: { template: { metadata: { labels: { lastRestartDate: Date.now().toString() } } } } }
-          })
-          .then(() => {
-            resolve(appId)
-          })
-      })
-      .catch((err) => {
-        debug('Failed to restart %s', appId)
-        reject(err)
-      })
+    const appsApi = kubeconfig.makeApiClient(k8s.AppsV1Api)
+    const patch = [
+      {
+        op: 'replace',
+        path: '/spec/template/metadata/labels',
+        value: {
+          app: appId,
+          lastRestartDate: Date.now().toString()
+        }
+      }
+    ]
+    const options = { headers: { 'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH } }
+    appsApi.patchNamespacedDeployment(
+      appId,
+      'default',
+      patch,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      options
+    ).then(response => {
+      resolve(appId)
+    }).catch(err => {
+      reject(err)
+    })
   })
 }
 

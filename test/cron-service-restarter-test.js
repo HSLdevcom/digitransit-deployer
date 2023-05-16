@@ -59,7 +59,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW + minutes(5))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(23 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -68,7 +68,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(5))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(15 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(15 * 60), { restartAt: restartAtString }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -77,7 +77,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(5))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(110), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, true)
+      appConfig('app1', NOW - minutes(110), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -86,7 +86,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(350))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(600), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, true)
+      appConfig('app1', NOW - minutes(600), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     restarter.command(testApps, failIfRestart)
   })
@@ -95,7 +95,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(42))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(150), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, false)
+      appConfig('app1', NOW - minutes(150), { restartAt: restartAtString, restartLimitInterval: '120' }, false)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -107,8 +107,8 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(1))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(150), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, true),
-      appConfig('app2', NOW - minutes(100), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, true)
+      appConfig('app1', NOW - minutes(150), { restartAt: restartAtString, restartLimitInterval: '120' }, true),
+      appConfig('app2', NOW - minutes(100), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -120,8 +120,8 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(1))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(150), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, false),
-      appConfig('app2', NOW - minutes(100), { 'restartAt': restartAtString, 'restartLimitInterval': '120' }, true)
+      appConfig('app1', NOW - minutes(150), { restartAt: restartAtString, restartLimitInterval: '120' }, false),
+      appConfig('app2', NOW - minutes(100), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -133,7 +133,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(1))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(23 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -145,7 +145,7 @@ describe('cron-deployment-restarter', function () {
     const restartAt = new Date(NOW - minutes(55))
     const restartAtString = restartAt.getHours() + '.' + restartAt.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(23 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -159,7 +159,7 @@ describe('cron-deployment-restarter', function () {
     const restartAtString = restartAtFirst.getHours() + '.' + restartAtFirst.getMinutes() + ', ' +
       restartAtSecond.getHours() + '.' + restartAtSecond.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(23 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)
@@ -173,7 +173,7 @@ describe('cron-deployment-restarter', function () {
     const restartAtString = restartAtFirst.getHours() + '.' + restartAtFirst.getMinutes() + ', ' +
       restartAtSecond.getHours() + '.' + restartAtSecond.getMinutes()
     const testApps = [
-      appConfig('app1', NOW - minutes(23 * 60), { 'restartAt': restartAtString }, true)
+      appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
     restarter.command(testApps, counter)

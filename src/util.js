@@ -1,6 +1,6 @@
-const { IncomingWebhook } = require('@slack/client')
+const { IncomingWebhook } = require('@slack/webhook')
 const url = process.env.SLACK_WEBHOOK_URL || null
-var webhook
+let webhook
 if (process.env.ENVIRONMENT_TYPE === 'DEV') {
   webhook = url !== null ? new IncomingWebhook(url, { username: 'Configuration checker', channel: 'digitransit_monitoring_dev' }) : null
 } else {
@@ -13,13 +13,13 @@ const postSlackMessage = (message) => {
     return
   }
 
-  process.stdout.write(`Sending to slack: ${message}\n`)
-
-  webhook.send(message, function (err) {
-    if (err) {
-      process.stdout.write(`ERROR sending to slack: ${err}\n`)
-    }
-  })
+  webhook.send({ text: message })
+    .then(() => {
+      process.stdout.write(`Sent to slack: ${message}\n`)
+    })
+    .catch((err) => {
+      process.stdout.write(`ERROR sending to slack : ${err}\n`)
+    })
 }
 
 module.exports = {
