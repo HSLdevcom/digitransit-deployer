@@ -26,7 +26,6 @@ module.exports = {
     const deploymentGraph = graph.build(deployments)
     const NOW = new Date().getTime()
     let attemptedRestart = false
-
     deployments.filter((deployment) => deployment.metadata.labels.restartAt)
       .forEach(deployment => {
         const deploymentDate = deployment.version
