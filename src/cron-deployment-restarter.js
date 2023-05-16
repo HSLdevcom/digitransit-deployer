@@ -23,19 +23,19 @@ const getDateObject = ([hour, minute]) => {
 module.exports = {
   name: 'cron-deployment-restarter',
   command: (deployments, context) => {
-    let deploymentGraph = graph.build(deployments)
+    const deploymentGraph = graph.build(deployments)
     const NOW = new Date().getTime()
     let attemptedRestart = false
 
-    deployments.filter((deployment) => deployment.metadata.labels['restartAt'])
+    deployments.filter((deployment) => deployment.metadata.labels.restartAt)
       .forEach(deployment => {
         const deploymentDate = deployment.version
         const deploymentLabels = deployment.metadata.labels
         const deploymentId = deploymentLabels.app
         const restartIntervalMins =
-          parseInt(deploymentLabels['restartLimitInterval']) || 60 * 18
+          parseInt(deploymentLabels.restartLimitInterval) || 60 * 18
 
-        deploymentLabels['restartAt']
+        deploymentLabels.restartAt
           .split('_')
           .filter((time) => /\S/.test(time)) // remove elements that consists of just whitespace
           .forEach(restartTime => {

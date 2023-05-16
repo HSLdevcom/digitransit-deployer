@@ -2,7 +2,7 @@ const debug = require('debug')('digitransit-deployer-repo')
 
 module.exports = {
   getImageDate: (repoAndRef) => {
-    const [ repository, tag ] = repoAndRef.split(':')
+    const [repository, tag] = repoAndRef.split(':')
     const url = `https://hub.docker.com/v2/repositories/${repository}/tags/${tag || 'latest'}`
     return fetch(url).then(res => {
       if (res.ok) {
