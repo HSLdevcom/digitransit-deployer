@@ -38,6 +38,8 @@ const getDeployments = () => {
                 }
               }
               resolve({ ...deployment, version: oldestPodEpoch })
+            }).catch(err => {
+              reject(err);
             })
           }
         }))
