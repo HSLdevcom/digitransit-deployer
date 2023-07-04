@@ -5,6 +5,9 @@ WORKDIR /usr/src/app
 ENV CHECK_INTERVAL_MINUTES 5
 ENV DEBUG ""
 ENV TZ "Europe/Helsinki"
+ENV DOCKER_USER
+ENV DOCKER_AUTH
+
 RUN apk add --update \
     python3 \
     build-base \
