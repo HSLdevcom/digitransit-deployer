@@ -15,22 +15,23 @@ module.exports = {
     return fetch(tokenUrl, {
       method: 'POST',
       headers: {
-	'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: loginRequest
     }).then(res => {
       if (res.ok) {
-	return res.json()
+        return res.json()
       } else {
-	debug(`failed to get access token from docker hub`)
+        debug('failed to get access token from docker hub')
       }
     }).then(body => {
       const token = body?.token
       return fetch(url, {
-	headers: {
-	  'Content-Type': 'application/json',
-	  'Authorization': `JWT ${token}`
-	}})
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${token}`
+        }
+      })
     }).then(res => {
       if (res.ok) {
         return res.json()
