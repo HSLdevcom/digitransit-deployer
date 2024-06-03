@@ -11,9 +11,9 @@
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
   "dependencies": {
-    "@kubernetes/client-node": "^0.18.1",
-    "@slack/webhook": "^6.1.0",
-    "debug": "^4.3.4",
+    "@kubernetes/client-node": "^0.19.0",
+    "@slack/webhook": "^7.0.2",
+    "debug": "^4.3.5",
     "graph.js": "^1.21.1",
     "lodash.difference": "^4.5.0"
   },

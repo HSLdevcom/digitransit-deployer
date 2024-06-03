@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 MAINTAINER Digitransit version: 0.1
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
