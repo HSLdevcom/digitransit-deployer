@@ -61,10 +61,9 @@ const restartDeployment = (appId) => {
     const patch = [
       {
         op: 'replace',
-        path: '/spec/template/metadata/labels',
+        path: '/spec/template/metadata/annotations',
         value: {
-          app: appId,
-          lastRestartDate: Date.now().toString()
+          'kubectl.kubernetes.io/restartedAt': Date.now().toISOString()
         }
       }
     ]
