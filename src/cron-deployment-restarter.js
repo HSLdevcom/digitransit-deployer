@@ -1,5 +1,4 @@
-const debug = require('debug')('cron-deployment-restarter.js')
-const graph = require('./graph.js')
+import { build, isSubGraphStable } from './graph.js'
 
 /*
  * Automatically restarts deployments if they have a restartAt label defined.
@@ -20,15 +19,14 @@ const getDateObject = ([hour, minute]) => {
   return dateObject
 }
 
-module.exports = {
-  name: 'cron-deployment-restarter',
+export default {
   command: (deployments, context) => {
-    const deploymentGraph = graph.build(deployments)
-    const NOW = new Date().getTime()
+    const deploymentGraph = build(deployments)
+    const nowEpoch = new Date().getTime()
     let attemptedRestart = false
     deployments.filter((deployment) => deployment.metadata.labels.restartAt)
       .forEach(deployment => {
-        const deploymentDate = deployment.version
+        const deploymentDateEpoch = deployment.version
         const deploymentLabels = deployment.metadata.labels
         const deploymentId = deploymentLabels.app
         const restartIntervalMins =
@@ -47,22 +45,22 @@ module.exports = {
               // One hour later
               const cronDateUpperLimit = getDateObject([nextHour, timeArray[1]])
 
-              if (NOW - deploymentDate >= restartIntervalMins * 60 * 1000 &&
-              NOW >= cronDate.getTime() &&
-              NOW <= cronDateUpperLimit.getTime()) {
-                if (graph.isSubGraphStable(deploymentGraph, deploymentId)) {
-                  debug('Restarting deployment %s', deploymentId)
+              if (nowEpoch - deploymentDateEpoch >= restartIntervalMins * 60 * 1000 &&
+                nowEpoch >= cronDate.getTime() &&
+                nowEpoch <= cronDateUpperLimit.getTime()) {
+                if (isSubGraphStable(deploymentGraph, deploymentId)) {
+                  console.log('Restarting deployment %s', deploymentId)
                   context.kubernetes.restartDeployment(deploymentId)
                     .then((r) => {
-                      debug('Restart called: %s', JSON.stringify(r))
+                      console.log('Restart called: %s', JSON.stringify(r))
                     })
-                    .catch((err) => debug(err))
+                    .catch((err) => console.log(err))
                   attemptedRestart = true
                 } else {
-                  debug('Delaying restart for %s (subgraph not stable)', deploymentId)
+                  console.log('Delaying restart for %s (subgraph not stable)', deploymentId)
                 }
               } else {
-                debug('No need to update %s', deploymentId)
+                console.log('No need to update %s', deploymentId)
               }
             }
           })

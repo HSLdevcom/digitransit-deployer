@@ -1,7 +1,6 @@
-const chai = require('chai')
-const { describe, it } = require('mocha')
-const { assert, expect } = chai
-const restarter = require('./../src/cron-deployment-restarter.js')
+import { describe, it } from 'mocha'
+import { assert, expect } from 'chai'
+import cronRestarter from './../src/cron-deployment-restarter.js'
 
 const appConfig = (id, version, labels, stable) => ({
   metadata: {
@@ -52,7 +51,7 @@ describe('cron-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', NOW, {}, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    cronRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when restartAt is after current time', () => {
@@ -61,7 +60,7 @@ describe('cron-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    cronRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when last restart within default limit interval', () => {
@@ -70,7 +69,7 @@ describe('cron-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', NOW - minutes(15 * 60), { restartAt: restartAtString }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    cronRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when last restart within user set limit interval', () => {
@@ -79,7 +78,7 @@ describe('cron-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', NOW - minutes(110), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    cronRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when it has been over hour since when the deployment was supposed to restart', () => {
@@ -88,7 +87,7 @@ describe('cron-deployment-restarter', function () {
     const testApps = [
       appConfig('app1', NOW - minutes(600), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    cronRestarter.command(testApps, failIfRestart)
   })
 
   it('app should be restarted when deployment is not stable', () => {
@@ -98,7 +97,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(150), { restartAt: restartAtString, restartLimitInterval: '120' }, false)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -111,7 +110,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(100), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -124,7 +123,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(100), { restartAt: restartAtString, restartLimitInterval: '120' }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -136,7 +135,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -148,7 +147,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -162,7 +161,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })
@@ -176,7 +175,7 @@ describe('cron-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(23 * 60), { restartAt: restartAtString }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    cronRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app1')
   })

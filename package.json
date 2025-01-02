@@ -10,16 +10,15 @@
   },
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
+  "type": "module",
   "dependencies": {
-    "@kubernetes/client-node": "^0.19.0",
-    "@slack/webhook": "^7.0.2",
-    "debug": "^4.3.5",
-    "graph.js": "^1.21.1",
-    "lodash.difference": "^4.5.0"
+    "@kubernetes/client-node": "^1.0.0",
+    "@slack/webhook": "^7.0.4",
+    "@dagrejs/graphlib": "^2.2.4"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
-    "standard": "^17.0.0"
+    "chai": "^5.1.2",
+    "mocha": "^11.0.1",
+    "standard": "^17.1.2"
   }
 }
