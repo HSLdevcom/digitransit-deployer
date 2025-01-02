@@ -3,8 +3,8 @@ const loginRequest = `{
   "password": "${process.env.DOCKER_AUTH}"
 }`
 
-module.exports = {
-  getImageDate: (repoAndRef) => {
+export default {
+  getImageDate: function (repoAndRef) {
     const [image, tag] = repoAndRef.split(':')
     const [namespace, repository] = image.split('/')
     const url = `https://hub.docker.com/v2/namespaces/${namespace}/repositories/${repository}/tags/${tag || 'latest'}`

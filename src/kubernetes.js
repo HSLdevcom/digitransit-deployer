@@ -1,4 +1,4 @@
-import k8s from '@kubernetes/client-node'
+import * as k8s from '@kubernetes/client-node'
 
 const kubeconfig = new k8s.KubeConfig()
 kubeconfig.loadFromCluster()
@@ -6,45 +6,32 @@ kubeconfig.loadFromCluster()
 const getDeployments = () => {
   return new Promise((resolve, reject) => {
     const appsApi = kubeconfig.makeApiClient(k8s.AppsV1Api)
-    const coreApi = kubeconfig.makeApiClient(k8s.CoreV1Api)
-    appsApi.listNamespacedDeployment('default').then(deploymentResponse => {
+    appsApi.listNamespacedDeployment({ namespace: 'default' }).then(deploymentResponse => {
       const promises = []
-      const deployments = deploymentResponse.body.items
+      const deployments = deploymentResponse.items
       for (const deployment of deployments) {
         promises.push(new Promise(resolve => {
           const deploymentName = deployment.metadata.name
           const labelSelector = `app=${deploymentName}`
-          const { lastRestartDate } = deployment.spec.template.metadata.labels
-          const parsedDate = parseInt(lastRestartDate, 10)
-          if (parsedDate) {
-            console.log(`Using lastRestartDate as version for deployment: ${deploymentName}`)
-            resolve({ ...deployment, version: parsedDate })
-          } else {
-            console.log(`Fetching pods for deployment: ${deploymentName}`)
-            coreApi.listNamespacedPod(
-              'default',
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              labelSelector
-            ).then(podResponse => {
-              let oldestPodEpoch
-              const pods = podResponse.body.items
-              for (const pod of pods) {
-                if (pod.status.startTime !== undefined && (!oldestPodEpoch || Date.parse(pod.status.startTime) < oldestPodEpoch)) {
-                  oldestPodEpoch = Date.parse(pod.status.startTime)
-                }
+          console.log(`Fetching replica sets for deployment: ${deploymentName}`)
+          appsApi.listNamespacedReplicaSet({ namespace: 'default', labelSelector }).then(replicaSetResponse => {
+            const replicaSets = replicaSetResponse.items
+            let newestReplicaSetTime
+            for (const replicaSet of replicaSets) {
+              const creationTime = replicaSet.metadata.creationTimestamp
+              if (!newestReplicaSetTime || creationTime > newestReplicaSetTime) {
+                newestReplicaSetTime = creationTime
               }
-              resolve({ ...deployment, version: oldestPodEpoch })
-            }).catch(err => {
-              reject(err)
-            })
-          }
+            }
+            resolve({ ...deployment, version: newestReplicaSetTime ? newestReplicaSetTime.getTime() : null })
+          }).catch(err => {
+            reject(err)
+          })
         }))
       }
       Promise.all(promises).then(values => {
-        resolve(values)
+        // some helm installed deployment didn't have the creation time for a replica set for some reason
+        resolve(values.filter(value => value.version != null))
       })
     })
       .catch((err) => {
@@ -53,40 +40,32 @@ const getDeployments = () => {
   })
 }
 
-// Restart by modifying deployment label.
+// Restart by modifying deployment annotation (the same annotation is edited when kubectl rollout
+// restart deployment is run).
 // It is important the deployment name and label "app" have same values
-const restartDeployment = (appId) => {
+const restartDeployment = (name) => {
   return new Promise((resolve, reject) => {
     const appsApi = kubeconfig.makeApiClient(k8s.AppsV1Api)
+    const now = new Date()
     const patch = [
       {
         op: 'replace',
         path: '/spec/template/metadata/annotations',
         value: {
-          'kubectl.kubernetes.io/restartedAt': Date.now().toISOString()
+          'kubectl.kubernetes.io/restartedAt': now.toISOString()
         }
       }
     ]
-    const options = { headers: { 'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH } }
-    appsApi.patchNamespacedDeployment(
-      appId,
-      'default',
-      patch,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      options
-    ).then(response => {
-      resolve(appId)
+
+    appsApi.patchNamespacedDeployment({ name, namespace: 'default', body: patch }).then(response => {
+      resolve(name)
     }).catch(err => {
       reject(err)
     })
   })
 }
 
-module.exports = {
+export default {
   getDeployments,
   restartDeployment
 }
