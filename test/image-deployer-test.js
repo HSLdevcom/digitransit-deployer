@@ -1,8 +1,6 @@
-const chai = require('chai')
-const { describe, it } = require('mocha')
-const assert = chai.assert
-const expect = chai.expect
-const deployer = require('./../src/image-deployer.js')
+import { assert, expect } from 'chai'
+import { describe, it } from 'mocha'
+import deployer from './../src/image-deployer.js'
 
 const appConfig = (id, version, labels, stable) => ({
   spec: {

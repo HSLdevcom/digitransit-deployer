@@ -1,5 +1,4 @@
-const k8s = require('@kubernetes/client-node')
-const debug = require('debug')('kubernetes')
+import k8s from '@kubernetes/client-node'
 
 const kubeconfig = new k8s.KubeConfig()
 kubeconfig.loadFromCluster()
@@ -18,10 +17,10 @@ const getDeployments = () => {
           const { lastRestartDate } = deployment.spec.template.metadata.labels
           const parsedDate = parseInt(lastRestartDate, 10)
           if (parsedDate) {
-            debug(`Using lastRestartDate as version for deployment: ${deploymentName}`)
+            console.log(`Using lastRestartDate as version for deployment: ${deploymentName}`)
             resolve({ ...deployment, version: parsedDate })
           } else {
-            debug(`Fetching pods for deployment: ${deploymentName}`)
+            console.log(`Fetching pods for deployment: ${deploymentName}`)
             coreApi.listNamespacedPod(
               'default',
               undefined,
