@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const MONITORING_CHANNEL = process.env.MONITORING_SLACK_CHANNEL
+const MONITORING_CHANNEL_ID = process.env.MONITORING_SLACK_CHANNEL_ID
 const MONITORING_USERNAME = 'Configuration checker'
 
-const ALERT_CHANNEL = process.env.ALERT_SLACK_CHANNEL
+const ALERT_CHANNEL_ID = process.env.ALERT_SLACK_CHANNEL_ID
 const ALERT_USERNAME = 'Image freshness monitor'
 
 const headers = {
@@ -35,9 +35,9 @@ function postSlackMessage (text, username, channel) {
 }
 
 export function postMonitoringSlackMessage (text) {
-  postSlackMessage(text, MONITORING_USERNAME, MONITORING_CHANNEL)
+  postSlackMessage(text, MONITORING_USERNAME, MONITORING_CHANNEL_ID)
 }
 
 export function postAlertSlackMessage (text) {
-  postSlackMessage(text, ALERT_USERNAME, ALERT_CHANNEL)
+  postSlackMessage(text, ALERT_USERNAME, ALERT_CHANNEL_ID)
 }
