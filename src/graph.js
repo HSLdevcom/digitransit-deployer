@@ -86,3 +86,21 @@ export function deploymentsNeedingRestart (graph) {
   }
   return deployments
 }
+
+export function deploymentsNeedingImageFreshnessCheck (graph, currentDate) {
+  const deployments = []
+  for (const node of graph.nodes()) {
+    const deployment = graph.node(node)
+    const checkTime = deployment.metadata.labels.checkImageFreshnessAt
+    if (checkTime) {
+      const checkTimeParts = checkTime.split(':')
+      const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), checkTimeParts[0], checkTimeParts[1])
+      const timeDifferenceSeconds = Math.round((currentDate.getTime() - checkDate.getTime()) / 1000)
+      // Between 0 and 5 minutes since the checkTime, this is to avoid duplicate checks
+      if (timeDifferenceSeconds >= 0 && timeDifferenceSeconds <= 5 * 60) {
+        deployments.push(deployment)
+      }
+    }
+  }
+  return deployments
+}

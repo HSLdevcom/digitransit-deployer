@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import graphlib from '@dagrejs/graphlib'
-import { build, isSubGraphStable, hasPendingDependentRestarts, deploymentsNeedingRestart } from './../src/graph.js'
+import { build, isSubGraphStable, hasPendingDependentRestarts, deploymentsNeedingRestart, deploymentsNeedingImageFreshnessCheck } from './../src/graph.js'
 
 const NOW = new Date().getTime()
 
@@ -112,5 +112,22 @@ describe('graph-builder', function () {
     ]
     deploymentGraph = build(testApps)
     expect(deploymentsNeedingRestart(deploymentGraph).length).to.equal(1)
+  })
+
+  it('Graph should return deployments needing image freshness check', () => {
+    // app2 should be checked between 09:00 and 09:05
+    const testApps = [
+      appConfig('app1', NOW, {}, true),
+      appConfig('app2', NOW, { checkImageFreshnessAt: '09:00' }, true)
+    ]
+    const deploymentGraph = build(testApps)
+    const currentDate = new Date('2025-01-01T09:01:00')
+    expect(deploymentsNeedingImageFreshnessCheck(deploymentGraph, currentDate).length).to.equal(1)
+
+    const beforeDate = new Date('2025-01-01T08:59:00')
+    expect(deploymentsNeedingImageFreshnessCheck(deploymentGraph, beforeDate).length).to.equal(0)
+
+    const afterDate = new Date('2025-01-01T09:06:00')
+    expect(deploymentsNeedingImageFreshnessCheck(deploymentGraph, afterDate).length).to.equal(0)
   })
 })
