@@ -3,8 +3,6 @@ MAINTAINER Digitransit version: 0.1
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 ENV TZ "Europe/Helsinki"
-ENV DOCKER_USER ""
-ENV DOCKER_AUTH ""
 
 RUN apk add --update \
     python3 \

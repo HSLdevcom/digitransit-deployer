@@ -9,6 +9,16 @@ Autodeployer also takes care of restarting dependant deployments.
 
 Additionally, some deployments are restarted periodically.
 
+## Env variable configuration
+
+These following environmental variables should be added:
+* "SLACK_ACCESS_TOKEN" access token used for sending slack messages through a Slack app
+* "MONITORING_SLACK_CHANNEL_ID" slack channel id (not the name) for most of the Slack messages
+* "ALERT_SLACK_CHANNEL_ID" slack channel id (not the name) for sending messages about image freshness checks
+* "DOCKER_USER" docker user that is used for interacting with the Docker API
+* "DOCKER_AUTH" docker password that is used for interacting with the Docker API
+* "TZ" optional timezone (defaults to "Europe/Helsinki")
+
 ## Prerequisites
 
 Deployments should have the following labels defined as deployer uses `app` as an identifier for finding deployments/pods.
@@ -65,3 +75,16 @@ Restarts deployment at 04:30. Attempts to restart deployment stop after deployme
 
 ### restartLimitInterval: "240"
 Optional label that defines in minutes how long time has to be since the last restart for a restart to trigger at the time defined in "restartAt" label. If "restartLimitInterval" is not defined, the default value will be 1080 minutes (18 hours).
+
+## Deployment image freshness monitoring
+
+Optionally, it can be checked that an image has been updated within the last 12 hours.
+
+This can be enabled with `checkImageFreshnessAt` label that defines when the check is done in `hh.mm` format:
+
+```yaml
+  metadata:
+    labels:
+      update: "auto"
+      checkImageFreshnessAt: "09.00"
+```
