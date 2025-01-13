@@ -3,10 +3,11 @@ import dockerRepo from './dockerRepo.js'
 import imageDeployer from './image-deployer.js'
 import depDeploymentRestarter from './dep-deployment-restarter.js'
 import cronDeploymentRestarter from './cron-deployment-restarter.js'
+import imageFreshnessMonitor from './image-freshness-monitor.js'
 
-const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES || 5) * 60 * 1000
+const CHECK_INTERVAL = 5 * 60 * 1000
 
-const actions = [imageDeployer, depDeploymentRestarter, cronDeploymentRestarter]
+const actions = [imageDeployer, depDeploymentRestarter, cronDeploymentRestarter, imageFreshnessMonitor]
 
 const logError = (name, e) => {
   console.log('%s: Error occurred %s', name, e)

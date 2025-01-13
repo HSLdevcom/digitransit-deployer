@@ -118,7 +118,7 @@ describe('graph-builder', function () {
     // app2 should be checked between 09:00 and 09:05
     const testApps = [
       appConfig('app1', NOW, {}, true),
-      appConfig('app2', NOW, { checkImageFreshnessAt: '09:00' }, true)
+      appConfig('app2', NOW, { checkImageFreshnessAt: '09.00' }, true)
     ]
     const deploymentGraph = build(testApps)
     const currentDate = new Date('2025-01-01T09:01:00')
