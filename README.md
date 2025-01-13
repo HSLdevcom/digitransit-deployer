@@ -32,7 +32,7 @@ Deployer configuration is stored in labels. For example take a look at https://g
   metadata:
     labels:
       update: "auto"
-      restartAfterDeployments: "opentripplanner-data-con-hsl"
+      restartAfterDeployments: "digitransit-ui-hsl-v3"
       restartDelay: "5"
 ```
 
@@ -54,7 +54,7 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
   metadata:
     labels:
       update: "auto"
-      restartAfterDeployments: "opentripplanner-data-con-hsl"
+      restartAfterDeployments: "digitransit-ui-hsl-v3"
       restartDelay: "1"
       restartAt: "04.30"
       restartLimitInterval: "240"
