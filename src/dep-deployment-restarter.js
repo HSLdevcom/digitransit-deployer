@@ -1,6 +1,6 @@
 import graphlib from '@dagrejs/graphlib'
 import { build, isSubGraphStable, deploymentsNeedingRestart } from './graph.js'
-import { postSlackMessage } from './util.js'
+import { postMonitoringSlackMessage } from './util.js'
 
 /*
  * Automatically restarts dependand deployments in controlled manner. This is
@@ -34,7 +34,7 @@ export default {
     const deploymentGraph = build(deployments)
     if (graphlib.alg.findCycles(deploymentGraph).length > 0) {
       console.log('Bummer! Graph has cycle, %s', deploymentGraph.toJSON())
-      postSlackMessage('Deployments are configured to restart each other in a cycle.')
+      postMonitoringSlackMessage('Deployments are configured to restart each other in a cycle.')
     } else {
       deploymentsNeedingRestart(deploymentGraph).filter(({ from, value }) => {
         console.log('deployment %s needs restart', from)

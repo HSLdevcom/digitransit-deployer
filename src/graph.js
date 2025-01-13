@@ -1,5 +1,5 @@
 import { Graph } from '@dagrejs/graphlib'
-import { postSlackMessage } from './util.js'
+import { postMonitoringSlackMessage } from './util.js'
 
 function addDepEdges (graph, deployment, deployments) {
   const deploymentLabels = deployment.metadata.labels
@@ -13,7 +13,7 @@ function addDepEdges (graph, deployment, deployments) {
       graph.setEdge(deploymentName, dependency, { delay })
     } else {
       console.log(`${dependency} does not exist but is defined as a dependency for a deployment`)
-      postSlackMessage(`${dependency} does not exist but is defined as a dependency for a deployment`)
+      postMonitoringSlackMessage(`${dependency} does not exist but is defined as a dependency for a deployment`)
     }
   })
 }
@@ -52,11 +52,9 @@ export function hasPendingDependentRestarts (graph, deploymentId) {
 
 export function build (deployments) {
   const graph = new Graph({ directed: true })
-  console.log('adding vertexes')
   deployments.forEach(deployment => {
     graph.setNode(deployment.metadata.labels.app, deployment)
   })
-  console.log('adding edges')
   deployments.forEach(deployment => {
     if (deployment.metadata.labels.restartAfterDeployments) {
       addDepEdges(graph, deployment, deployments)
@@ -82,6 +80,25 @@ export function deploymentsNeedingRestart (graph) {
     const value = graph.edge(edge)
     if (needsRestart(graph, from, to, value)) {
       deployments.push({ from, to, value })
+    }
+  }
+  return deployments
+}
+
+export function deploymentsNeedingImageFreshnessCheck (graph, currentDate) {
+  const deployments = []
+  for (const node of graph.nodes()) {
+    const deployment = graph.node(node)
+    const checkTime = deployment.metadata.labels.checkImageFreshnessAt
+    if (checkTime) {
+      // time format is hh.mm
+      const checkTimeParts = checkTime.split('.')
+      const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), checkTimeParts[0], checkTimeParts[1])
+      const timeDifferenceSeconds = Math.round((currentDate.getTime() - checkDate.getTime()) / 1000)
+      // Between 0 and 5 minutes since the checkTime, this is to avoid duplicate checks
+      if (timeDifferenceSeconds >= 0 && timeDifferenceSeconds <= 5 * 60) {
+        deployments.push(deployment)
+      }
     }
   }
   return deployments
