@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 const MONITORING_CHANNEL_ID = process.env.MONITORING_SLACK_CHANNEL_ID
-const MONITORING_USERNAME = 'Configuration checker'
+const MONITORING_USERNAME = `Configuration checker ${process.env.ENVIRONMENT_TYPE}`
 
 const ALERT_CHANNEL_ID = process.env.ALERT_SLACK_CHANNEL_ID
-const ALERT_USERNAME = 'Image freshness monitor'
+const ALERT_USERNAME = `Image freshness monitor ${process.env.ENVIRONMENT_TYPE}`
 
 const headers = {
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`,
