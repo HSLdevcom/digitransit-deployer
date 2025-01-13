@@ -5,13 +5,13 @@
 
 We deploy digitransit docker images automatically from Docker Hub. When a Docker image of a kubernetes deployment that we have deployed in our environment is updated at Docker Hub the new image is deployed automatically.
 
-Autodeployer also takes care of restarting dependant deployments. For example when otp-data is updated otp is restarted etc.
+Autodeployer also takes care of restarting dependant deployments.
 
 Additionally, some deployments are restarted periodically.
 
 ## Prerequisites
 
-Deployments should have the following labels defined as deployer uses `app` as an identifier for finding deployments/pods and `lastRestartDate` should exist because deployer at runtime restarts services by updating that label to be epoch time from the restart moment and it also checks when deployment was last "restarted" by reading that value. If the value is not a number, deployer ignores it and checks what is the age of the oldest pod to determine the age of the deployment.
+Deployments should have the following labels defined as deployer uses `app` as an identifier for finding deployments/pods.
 ```yaml
 metadata:
   name: <deployment name>
@@ -22,7 +22,6 @@ spec:
     metadata:
       labels:
         app: <deployment name>
-        lastRestartDate: dummy-value
 ```
 
 ## Autodeployer configuration
@@ -33,7 +32,7 @@ Deployer configuration is stored in labels. For example take a look at https://g
   metadata:
     labels:
       update: "auto"
-      restartAfterDeployments: "opentripplanner-data-con-hsl"
+      restartAfterDeployments: "digitransit-ui-hsl-v3"
       restartDelay: "5"
 ```
 
@@ -55,7 +54,7 @@ Labels are also used for the periodic (cron style) restarts. These labels can co
   metadata:
     labels:
       update: "auto"
-      restartAfterDeployments: "opentripplanner-data-con-hsl"
+      restartAfterDeployments: "digitransit-ui-hsl-v3"
       restartDelay: "1"
       restartAt: "04.30"
       restartLimitInterval: "240"

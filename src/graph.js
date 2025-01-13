@@ -1,8 +1,7 @@
-const Graph = require('graph.js/dist/graph.full.js')
-const debug = require('debug')('graph')
-const { postSlackMessage } = require('./util')
+import { Graph } from '@dagrejs/graphlib'
+import { postSlackMessage } from './util.js'
 
-const addDepEdges = (graph, deployment, deployments) => {
+function addDepEdges (graph, deployment, deployments) {
   const deploymentLabels = deployment.metadata.labels
   const dependencies = deploymentLabels.restartAfterDeployments
     .split('_')
@@ -11,29 +10,36 @@ const addDepEdges = (graph, deployment, deployments) => {
   const deploymentName = deploymentLabels.app
   dependencies.forEach(dependency => {
     if (deployments.filter(deploymentInstance => (deploymentInstance.metadata.labels.app === dependency)).length > 0) {
-      graph.addEdge(deploymentName, dependency, { delay })
+      graph.setEdge(deploymentName, dependency, { delay })
     } else {
-      debug(`${dependency} does not exist but is defined as a dependency for a deployment`)
+      console.log(`${dependency} does not exist but is defined as a dependency for a deployment`)
       postSlackMessage(`${dependency} does not exist but is defined as a dependency for a deployment`)
     }
   })
 }
 
-const needsRestart = (graph, from, to, edge) => {
+function needsRestart (graph, from, to, edge) {
   // needs restart if deployment time is smaller than dependency time + delay
-  const deploymentTime = graph.vertexValue(from).version
-  const dependencyTime = graph.vertexValue(to).version
+  const deploymentTime = graph.node(from).version
+  const dependencyTime = graph.node(to).version
   const needsStart = dependencyTime + edge.delay > deploymentTime
   return needsStart
 }
 
-const hasPendingDependentRestarts = (graph, deploymentId) => {
+const deploymentIsStable = (deployment) =>
+  deployment.status.replicas > 0 && deployment.status.readyReplicas === deployment.status.replicas &&
+  deployment.status.updatedReplicas === deployment.status.replicas && deployment.status.availableReplicas === deployment.status.replicas
+
+export function hasPendingDependentRestarts (graph, deploymentId) {
   // has pending dependent restart if the deploymentId or any vertex that deployment
   // has Path to has pending restarts
 
-  for (const [dependency, , edge] of graph.verticesFrom(deploymentId)) {
-    debug('next checking dependency %s %s %s', deploymentId, dependency, edge)
-    if (needsRestart(graph, deploymentId, dependency, edge)) {
+  const outEdges = graph.outEdges(deploymentId)
+  for (const edge of outEdges) {
+    const edgeData = graph.edge(edge)
+    const dependency = edge.w
+    console.log('next checking dependency %s %s %s', deploymentId, dependency, edgeData)
+    if (needsRestart(graph, deploymentId, dependency, edgeData)) {
       return true
     }
 
@@ -44,42 +50,39 @@ const hasPendingDependentRestarts = (graph, deploymentId) => {
   return false
 }
 
-const deploymentIsStable = (deployment) =>
-  deployment.status.replicas > 0 && deployment.status.readyReplicas === deployment.status.replicas &&
-  deployment.status.updatedReplicas === deployment.status.replicas && deployment.status.availableReplicas === deployment.status.replicas
-
-module.exports = {
-  build: (deployments) => {
-    const graph = new Graph()
-    debug('adding vertexes')
-    deployments.forEach(deployment => {
-      graph.addVertex(deployment.metadata.labels.app, deployment)
-    })
-    debug('adding edges')
-    deployments.forEach(deployment => {
-      if (deployment.metadata.labels.restartAfterDeployments) {
-        addDepEdges(graph, deployment, deployments)
-      }
-    })
-    return graph
-  },
-  isSubGraphStable: (graph, vertexId) => {
-    // sub graph is stable if all vertexes accessible from the vertex
-    for (const [, vertexValue] of graph.verticesWithPathFrom(vertexId)) {
-      if (!deploymentIsStable(vertexValue)) return false
+export function build (deployments) {
+  const graph = new Graph({ directed: true })
+  console.log('adding vertexes')
+  deployments.forEach(deployment => {
+    graph.setNode(deployment.metadata.labels.app, deployment)
+  })
+  console.log('adding edges')
+  deployments.forEach(deployment => {
+    if (deployment.metadata.labels.restartAfterDeployments) {
+      addDepEdges(graph, deployment, deployments)
     }
-    return true
-  },
+  })
+  return graph
+}
 
-  hasPendingDependentRestarts,
-
-  deploymentsNeedingRestart: (graph) => {
-    const deployments = []
-    for (const [from, to, value] of graph.edges()) {
-      if (needsRestart(graph, from, to, value)) {
-        deployments.push({ from, to, value })
-      }
-    }
-    return deployments
+export function isSubGraphStable (graph, vertexId) {
+  // sub graph is stable if all vertexes accessible from the vertex
+  for (const nodeId of graph.successors(vertexId)) {
+    const deployment = graph.node(nodeId)
+    if (!deploymentIsStable(deployment)) return false
   }
+  return true
+}
+
+export function deploymentsNeedingRestart (graph) {
+  const deployments = []
+  for (const edge of graph.edges()) {
+    const from = edge.v
+    const to = edge.w
+    const value = graph.edge(edge)
+    if (needsRestart(graph, from, to, value)) {
+      deployments.push({ from, to, value })
+    }
+  }
+  return deployments
 }

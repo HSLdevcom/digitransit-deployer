@@ -1,23 +1,23 @@
-const kubernetes = require('./kubernetes')
-const debug = require('debug')('digitransit-deployer')
-const imageDeployer = require('./image-deployer')
-const depDeploymentRestarter = require('./dep-deployment-restarter')
-const cronDeploymentRestarter = require('./cron-deployment-restarter')
+import kubernetes from './kubernetes.js'
+import dockerRepo from './dockerRepo.js'
+import imageDeployer from './image-deployer.js'
+import depDeploymentRestarter from './dep-deployment-restarter.js'
+import cronDeploymentRestarter from './cron-deployment-restarter.js'
 
 const CHECK_INTERVAL = (process.env.CHECK_INTERVAL_MINUTES || 5) * 60 * 1000
 
 const actions = [imageDeployer, depDeploymentRestarter, cronDeploymentRestarter]
 
 const logError = (name, e) => {
-  debug('%s: Error occurred %s', name, e)
+  console.log('%s: Error occurred %s', name, e)
 }
 
 const checkDeployments = () => {
-  debug('Retrieving deployment configuration from kubernetes')
+  console.log('Retrieving deployment configuration from kubernetes')
 
   const context = {
-    kubernetes: require('./kubernetes'),
-    dockerRepo: require('./dockerRepo')
+    kubernetes,
+    dockerRepo
   }
 
   kubernetes.getDeployments().then(deployments => {
@@ -30,7 +30,7 @@ const checkDeployments = () => {
         }
       })
   })
-    .catch((err) => debug("Couldn't get deployments: " + err))
+    .catch((err) => console.log("Couldn't get deployments: " + err))
 }
 
 checkDeployments()

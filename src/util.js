@@ -1,4 +1,5 @@
-const { IncomingWebhook } = require('@slack/webhook')
+import { IncomingWebhook } from '@slack/webhook'
+
 const url = process.env.SLACK_WEBHOOK_URL || null
 let webhook
 if (process.env.ENVIRONMENT_TYPE === 'DEV') {
@@ -7,7 +8,7 @@ if (process.env.ENVIRONMENT_TYPE === 'DEV') {
   webhook = url !== null ? new IncomingWebhook(url, { username: 'Configuration checker', channel: 'digitransit_monitoring_prd' }) : null
 }
 
-const postSlackMessage = (message) => {
+export function postSlackMessage (message) {
   if (webhook === null) {
     process.stdout.write(`Not sending to slack: ${message}\n`)
     return
@@ -20,8 +21,4 @@ const postSlackMessage = (message) => {
     .catch((err) => {
       process.stdout.write(`ERROR sending to slack : ${err}\n`)
     })
-}
-
-module.exports = {
-  postSlackMessage
 }

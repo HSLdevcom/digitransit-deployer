@@ -1,8 +1,6 @@
-const chai = require('chai')
-const { describe, it } = require('mocha')
-const assert = chai.assert
-const expect = chai.expect
-const restarter = require('./../src/dep-deployment-restarter.js')
+import { assert, expect } from 'chai'
+import { describe, it } from 'mocha'
+import deploymentRestarter from './../src/dep-deployment-restarter.js'
 
 const appConfig = (id, version, labels, stable) => ({
   metadata: {
@@ -54,7 +52,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app1', NOW, {}, true),
       appConfig('app2', NOW - 1, { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when restartDelay has not passed for some dependency', () => {
@@ -63,7 +61,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(5), {}, true),
       appConfig('app3', NOW - minutes(5), { restartAfterDeployments: 'app1_app2', restartDelay: '5' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('stable app should be restarted when restartDelay has passed for only dependency', () => {
@@ -72,7 +70,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(1), { restartAfterDeployments: 'app1', restartDelay: '1' }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    deploymentRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app2')
   })
@@ -82,7 +80,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(0), {}, true),
       appConfig('app2', NOW - minutes(1), { restartAfterDeployments: 'app1', restartDelay: '1' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('stable app should be restarted when restartDelay has passed for every dependency', () => {
@@ -92,7 +90,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app3', NOW - minutes(5), { restartAfterDeployments: 'app1_app2', restartDelay: '5' }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    deploymentRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app3')
   })
@@ -102,7 +100,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(5), {}, true),
       appConfig('app2', NOW, { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when single dependency is not stable', () => {
@@ -110,7 +108,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app1', NOW - minutes(5), {}, false),
       appConfig('app2', NOW - minutes(5), { restartAfterDeployments: 'app1', restartDelay: '5' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('no apps should restart when any dependency is not stable', () => {
@@ -119,7 +117,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(5), {}, false),
       appConfig('app3', NOW - minutes(5), { restartAfterDeployments: 'app1_app2', restartDelay: '5' }, true)
     ]
-    restarter.command(testApps, failIfRestart)
+    deploymentRestarter.command(testApps, failIfRestart)
   })
 
   it('incorrect dependency should be ignored and restart should be called because of valid dependency', () => {
@@ -128,7 +126,7 @@ describe('dep-deployment-restarter', function () {
       appConfig('app2', NOW - minutes(1), { restartAfterDeployments: 'app3_app1', restartDelay: '1' }, true)
     ]
     const counter = countRestarts()
-    restarter.command(testApps, counter)
+    deploymentRestarter.command(testApps, counter)
     expect(counter.get()).to.be.equal(1)
     expect(counter.deployment()).to.be.equal('app2')
   })

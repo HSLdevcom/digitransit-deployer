@@ -1,12 +1,10 @@
-const debug = require('debug')('digitransit-deployer-repo')
-
 const loginRequest = `{
   "username": "${process.env.DOCKER_USER}",
   "password": "${process.env.DOCKER_AUTH}"
 }`
 
-module.exports = {
-  getImageDate: (repoAndRef) => {
+export default {
+  getImageDate: function (repoAndRef) {
     const [image, tag] = repoAndRef.split(':')
     const [namespace, repository] = image.split('/')
     const url = `https://hub.docker.com/v2/namespaces/${namespace}/repositories/${repository}/tags/${tag || 'latest'}`
@@ -22,7 +20,7 @@ module.exports = {
       if (res.ok) {
         return res.json()
       } else {
-        debug('failed to get access token from docker hub')
+        console.log('failed to get access token from docker hub')
       }
     }).then(body => {
       const token = body?.token
@@ -41,7 +39,7 @@ module.exports = {
     }).then(data => {
       return data && Date.parse(data.last_updated)
     }).catch(err => {
-      debug(err)
+      console.log(err)
     })
   }
 }
