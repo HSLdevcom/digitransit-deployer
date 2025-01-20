@@ -6,8 +6,10 @@ import { postAlertSlackMessage } from './util.js'
  * has been updated within last 24 hours. If not, a message is sent to slack.
  * Configured with labels as follows:
  *  checkImageFreshnessAt: "hh.mm"
+ *  imageFreshnessTitle: "Service_X"
  * where checkImageFreshnessAt defines when the check should be done (roughly,
- * might be delayed by 0-5 mins)
+ * might be delayed by 0-5 mins) and imageFreshnessTitle is the deployment's title used in
+ * slack messaging.
  */
 export default {
   command: (deployments, context) => {
@@ -22,7 +24,7 @@ export default {
     const promises = []
     deploymentsNeedingCheck.forEach(deployment => {
       const deploymentId = deployment.metadata.labels.app
-      const deploymentTitle = deployment.metadata.labels.title || deploymentId
+      const deploymentTitle = deployment.metadata.labels.imageFreshnessTitle || deploymentId
       const image = deployment.spec.template.spec.containers[0].image
       console.log(`Deployment ${deploymentId} needs image freshness check`)
       promises.push(new Promise((resolve) => {
@@ -44,7 +46,7 @@ export default {
     Promise.all(promises).then((values) => {
       const deploymentsWithOldImages = values.filter(value => value != null)
       if (deploymentsWithOldImages.length > 0) {
-        postAlertSlackMessage(`:boom: These deployments have not been updated within the last 12 hours: ${deploymentsWithOldImages.join(', ')} :boom:`)
+        postAlertSlackMessage(`:boom: These services have not been updated within the last 12 hours: ${deploymentsWithOldImages.join(', ')} :boom:`)
       }
     })
   }
