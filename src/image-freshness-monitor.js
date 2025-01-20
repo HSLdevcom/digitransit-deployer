@@ -46,7 +46,7 @@ export default {
     Promise.all(promises).then((values) => {
       const deploymentsWithOldImages = values.filter(value => value != null)
       if (deploymentsWithOldImages.length > 0) {
-        postAlertSlackMessage(`:boom: These services have not been updated within the last 12 hours: ${deploymentsWithOldImages.join(', ')} :boom:`)
+        postAlertSlackMessage(`:boom: These have not been updated within the last 12 hours: ${deploymentsWithOldImages.join(', ')} :boom:`)
       }
     })
   }
