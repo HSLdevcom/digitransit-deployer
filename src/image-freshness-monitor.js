@@ -22,14 +22,15 @@ export default {
     const promises = []
     deploymentsNeedingCheck.forEach(deployment => {
       const deploymentId = deployment.metadata.labels.app
+      const deploymentTitle = deployment.metadata.labels.title || deploymentId
       const image = deployment.spec.template.spec.containers[0].image
-      console.log(`Deployment ${deployment.metadata.labels.app} needs image freshness check`)
+      console.log(`Deployment ${deploymentId} needs image freshness check`)
       promises.push(new Promise((resolve) => {
         context.dockerRepo.getImageDate(image).then(repoImageDate => {
           // check that image is older than 12 hours old
           if (repoImageDate && repoImageDate < now.getTime() - 12 * 60 * 60 * 1000) {
             console.log('%s image has not been updated within the last 12 hours', deploymentId)
-            resolve(deployment.metadata.labels.app)
+            resolve(deploymentTitle)
           } else {
             console.log('%s image has been updated within the last 12 hours', deploymentId)
             resolve(null)
