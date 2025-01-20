@@ -80,11 +80,18 @@ Optional label that defines in minutes how long time has to be since the last re
 
 Optionally, it can be checked that an image has been updated within the last 12 hours.
 
-This can be enabled with `checkImageFreshnessAt` label that defines when the check is done in `hh.mm` format:
+Example config:
 
 ```yaml
   metadata:
     labels:
       update: "auto"
       checkImageFreshnessAt: "09.00"
+      imageFreshnessTitle: "Service_X"
 ```
+
+### checkImageFreshnessAt: "04.30"
+Label that defines when the check is done in `hh.mm`. If multiple deployments have identical check times, the checks and messaging are grouped together.
+
+### imageFreshnessTitle: "240"
+The title which is used for the deployment when messaging about image freshness over slack.
