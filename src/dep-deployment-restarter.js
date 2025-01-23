@@ -1,6 +1,6 @@
-import graphlib from '@dagrejs/graphlib'
-import { build, isSubGraphStable, deploymentsNeedingRestart } from './graph.js'
-import { postMonitoringSlackMessage } from './util.js'
+import graphlib from '@dagrejs/graphlib';
+import { build, isSubGraphStable, deploymentsNeedingRestart } from './graph.js';
+import { postMonitoringSlackMessage } from './util.js';
 
 /*
  * Automatically restarts dependand deployments in controlled manner. This is
@@ -29,36 +29,45 @@ import { postMonitoringSlackMessage } from './util.js'
  */
 export default {
   command: (deployments, context) => {
-    const NOW = new Date().getTime()
+    const NOW = new Date().getTime();
 
-    const deploymentGraph = build(deployments)
+    const deploymentGraph = build(deployments);
     if (graphlib.alg.findCycles(deploymentGraph).length > 0) {
-      console.log('Bummer! Graph has cycle, %s', deploymentGraph.toJSON())
-      postMonitoringSlackMessage('Deployments are configured to restart each other in a cycle.')
+      console.log('Bummer! Graph has cycle, %s', deploymentGraph.toJSON());
+      postMonitoringSlackMessage(
+        'Deployments are configured to restart each other in a cycle.',
+      );
     } else {
-      deploymentsNeedingRestart(deploymentGraph).filter(({ from, value }) => {
-        console.log('deployment %s needs restart', from)
-        // check that enough time has passed after all depedency restarts
-        for (const deploymentId of deploymentGraph.successors(from)) {
-          const deployment = deploymentGraph.node(deploymentId)
-          console.log('checking %s %s', NOW, deployment.version)
-          if (NOW <= deployment.version + value.delay) {
-            return false
+      deploymentsNeedingRestart(deploymentGraph)
+        .filter(({ from, value }) => {
+          console.log('deployment %s needs restart', from);
+          // check that enough time has passed after all depedency restarts
+          for (const deploymentId of deploymentGraph.successors(from)) {
+            const deployment = deploymentGraph.node(deploymentId);
+            console.log('checking %s %s', NOW, deployment.version);
+            if (NOW <= deployment.version + value.delay) {
+              return false;
+            }
           }
-        }
-        return true
-      }).filter(({ from }) => {
-        if (!isSubGraphStable(deploymentGraph, from)) {
-          console.log('Sub Graph for %s is not stable, delaying restart', from)
-          return false
-        }
-        return true
-      }).forEach(({ from }) => {
-        console.log('Restarting deployment %s', from)
-        context.kubernetes.restartDeployment(from)
-          .then((e) => console.log('Restarted: %s', JSON.stringify(e)))
-          .catch((err) => console.log(err))
-      })
+          return true;
+        })
+        .filter(({ from }) => {
+          if (!isSubGraphStable(deploymentGraph, from)) {
+            console.log(
+              'Sub Graph for %s is not stable, delaying restart',
+              from,
+            );
+            return false;
+          }
+          return true;
+        })
+        .forEach(({ from }) => {
+          console.log('Restarting deployment %s', from);
+          context.kubernetes
+            .restartDeployment(from)
+            .then(e => console.log('Restarted: %s', JSON.stringify(e)))
+            .catch(err => console.log(err));
+        });
     }
-  }
-}
+  },
+};

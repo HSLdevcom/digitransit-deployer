@@ -1,4 +1,4 @@
-import { build, isSubGraphStable } from './graph.js'
+import { build, isSubGraphStable } from './graph.js';
 
 /*
  * Automatically restarts deployments if they have a restartAt label defined.
@@ -13,57 +13,68 @@ import { build, isSubGraphStable } from './graph.js'
  */
 
 const getDateObject = ([hour, minute]) => {
-  const dateObject = new Date()
-  dateObject.setHours(parseInt(hour))
-  dateObject.setMinutes(parseInt(minute))
-  return dateObject
-}
+  const dateObject = new Date();
+  dateObject.setHours(parseInt(hour));
+  dateObject.setMinutes(parseInt(minute));
+  return dateObject;
+};
 
 export default {
   command: (deployments, context) => {
-    const deploymentGraph = build(deployments)
-    const nowEpoch = new Date().getTime()
-    let attemptedRestart = false
-    deployments.filter((deployment) => deployment.metadata.labels.restartAt)
+    const deploymentGraph = build(deployments);
+    const nowEpoch = new Date().getTime();
+    let attemptedRestart = false;
+    deployments
+      .filter(deployment => deployment.metadata.labels.restartAt)
       .forEach(deployment => {
-        const deploymentDateEpoch = deployment.version
-        const deploymentLabels = deployment.metadata.labels
-        const deploymentId = deploymentLabels.app
+        const deploymentDateEpoch = deployment.version;
+        const deploymentLabels = deployment.metadata.labels;
+        const deploymentId = deploymentLabels.app;
         const restartIntervalMins =
-          parseInt(deploymentLabels.restartLimitInterval) || 60 * 18
+          parseInt(deploymentLabels.restartLimitInterval) || 60 * 18;
 
         deploymentLabels.restartAt
           .split('_')
-          .filter((time) => /\S/.test(time)) // remove elements that consists of just whitespace
+          .filter(time => /\S/.test(time)) // remove elements that consists of just whitespace
           .forEach(restartTime => {
             if (!attemptedRestart) {
-              const trimmedTime = restartTime.replace(/\s/g, '')
-              const timeArray = trimmedTime.split('.')
-              const nextHour = parseInt(timeArray[0]) + 1
+              const trimmedTime = restartTime.replace(/\s/g, '');
+              const timeArray = trimmedTime.split('.');
+              const nextHour = parseInt(timeArray[0]) + 1;
 
-              const cronDate = getDateObject(timeArray)
+              const cronDate = getDateObject(timeArray);
               // One hour later
-              const cronDateUpperLimit = getDateObject([nextHour, timeArray[1]])
+              const cronDateUpperLimit = getDateObject([
+                nextHour,
+                timeArray[1],
+              ]);
 
-              if (nowEpoch - deploymentDateEpoch >= restartIntervalMins * 60 * 1000 &&
+              if (
+                nowEpoch - deploymentDateEpoch >=
+                  restartIntervalMins * 60 * 1000 &&
                 nowEpoch >= cronDate.getTime() &&
-                nowEpoch <= cronDateUpperLimit.getTime()) {
+                nowEpoch <= cronDateUpperLimit.getTime()
+              ) {
                 if (isSubGraphStable(deploymentGraph, deploymentId)) {
-                  console.log('Restarting deployment %s', deploymentId)
-                  context.kubernetes.restartDeployment(deploymentId)
-                    .then((r) => {
-                      console.log('Restart called: %s', JSON.stringify(r))
+                  console.log('Restarting deployment %s', deploymentId);
+                  context.kubernetes
+                    .restartDeployment(deploymentId)
+                    .then(r => {
+                      console.log('Restart called: %s', JSON.stringify(r));
                     })
-                    .catch((err) => console.log(err))
-                  attemptedRestart = true
+                    .catch(err => console.log(err));
+                  attemptedRestart = true;
                 } else {
-                  console.log('Delaying restart for %s (subgraph not stable)', deploymentId)
+                  console.log(
+                    'Delaying restart for %s (subgraph not stable)',
+                    deploymentId,
+                  );
                 }
               } else {
-                console.log('No need to update %s', deploymentId)
+                console.log('No need to update %s', deploymentId);
               }
             }
-          })
-      })
-  }
-}
+          });
+      });
+  },
+};
