@@ -8,7 +8,7 @@
     "build": "docker build -t hsldevcom/digitransit-deployer .",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "test": "npm run format && npm run lint && TZ=Europe/Helsinki node ./node_modules/mocha/bin/mocha"
+    "test": "prettier --check . && npm run lint && TZ=Europe/Helsinki node ./node_modules/mocha/bin/mocha"
   },
   "author": "",
   "license": "(AGPL-3.0 OR EUPL-1.2)",
