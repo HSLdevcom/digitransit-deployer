@@ -15,7 +15,7 @@
   "type": "module",
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
-    "@kubernetes/client-node": "^1.0.0",
+    "@kubernetes/client-node": "^1.1.0",
     "axios": "^1.7.9"
   },
   "devDependencies": {
