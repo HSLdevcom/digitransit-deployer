@@ -16,7 +16,7 @@
   "dependencies": {
     "@dagrejs/graphlib": "^2.2.4",
     "@kubernetes/client-node": "^1.0.0",
-    "axios": "^1.7.9"
+    "axios": "^1.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
